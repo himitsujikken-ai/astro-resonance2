@@ -183,15 +183,19 @@
 
                 <div class="mb-8 text-sm text-slate-300 leading-relaxed">
                     再生される音に合わせ、<span class="text-fuchsia-300 font-bold">5秒間</span> 声を出してください。<br>
-                    FFT解析により、あなたの現在の状態（Voice）と、理想（Target）の差異を検出します。
+                    <span class="text-xs text-slate-400">
+                    あなたの声をリアルタイムでFFT（高速フーリエ変換）により周波数スペクトルに分解し、
+                    五行（木火土金水）の各周波数帯域のエネルギー分布を解析します。
+                    守護周波数との同期率も算出されます。
+                    </span>
                 </div>
 
                 <div class="mb-6 glass-panel p-4 rounded-xl border border-teal-500/30 bg-slate-900/50">
-                    <label class="block text-xs font-bold tracking-wider text-teal-400 mb-2">🎵 AUDIO DURATION (seconds)</label>
+                    <label class="block text-xs font-bold tracking-wider text-teal-400 mb-2">🎵 GENERATED AUDIO DURATION</label>
                     <div class="flex items-center gap-4">
                         <input type="number" id="inp-duration" value="10" min="1" max="300" step="1"
                             class="w-24 bg-slate-950/80 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 font-mono text-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all">
-                        <span class="text-sm text-slate-400">生成する音声の長さを指定（1〜300秒）</span>
+                        <span class="text-sm text-slate-400">生成する音声の長さ（1〜300秒）</span>
                     </div>
                 </div>
 
@@ -205,6 +209,7 @@
                         ■ MERGE DATA
                     </button>
                 </div>
+                <div id="rec-status" class="mt-4 text-xs text-slate-500 font-mono text-center h-4"></div>
             </div>
 
             <div id="step4" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-teal-500/50">
@@ -294,6 +299,8 @@
             recordedData: [50, 50, 50, 50, 50],
             nameData: [0,0,0,0,0],
             finalAudioBuffer: null, // 生成された音声データを保持
+            audioSamples: [], // FFT分析用の音声サンプル
+            recordingStartTime: null,
             
             init: function() {
                 const p = new URLSearchParams(window.location.search);
@@ -405,6 +412,9 @@
 
             startMic: function() {
                 this.initAudio();
+                this.audioSamples = []; // サンプルをリセット
+                this.recordingStartTime = Date.now();
+                
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                     this.micSrc = this.ctx.createMediaStreamSource(stream);
                     this.micSrc.connect(this.analyzer);
@@ -413,7 +423,32 @@
                     btnRec.classList.add('animate-pulse', 'bg-fuchsia-900');
                     document.getElementById('btn-stop').disabled = false;
                     this.visualize();
+                    this.collectAudioData(); // 音声データ収集開始
                 }).catch(e => alert("MIC ACCESS DENIED"));
+            },
+
+            collectAudioData: function() {
+                const bufferLength = this.analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                const collect = () => {
+                    if (!this.micSrc) return; // 録音停止時は終了
+                    
+                    this.analyzer.getByteFrequencyData(dataArray);
+                    // 周波数データをコピーして保存
+                    this.audioSamples.push(new Uint8Array(dataArray));
+                    
+                    // 録音時間を表示
+                    const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1);
+                    const statusEl = document.getElementById('rec-status');
+                    if (statusEl) {
+                        statusEl.textContent = `Recording: ${elapsed}s | Samples: ${this.audioSamples.length}`;
+                    }
+                    
+                    // 100ms間隔でサンプリング（5秒で約50サンプル）
+                    setTimeout(() => collect(), 100);
+                };
+                collect();
             },
 
             stopMic: function() {
@@ -421,6 +456,13 @@
                 btnStop.disabled = true;
                 btnStop.classList.remove('bg-slate-100', 'text-slate-900');
                 btnStop.classList.add('bg-slate-800', 'text-teal-400', 'animate-pulse');
+                
+                // 録音状況表示を更新
+                const statusEl = document.getElementById('rec-status');
+                if (statusEl) {
+                    statusEl.textContent = `Processing ${this.frequencyData.length} samples...`;
+                    statusEl.className = 'mt-4 text-xs text-yellow-400 font-mono text-center h-4 animate-pulse';
+                }
                 
                 const msgs = ["INTEGRATING BIO-RHYTHM...", "FFT ANALYSIS: PROCESSING...", "ALIGNING DIMENSIONS...", "FINALIZING RESONANCE..."];
                 let i = 0;
@@ -431,9 +473,11 @@
                     if(this.micSrc) this.micSrc.disconnect();
                     cancelAnimationFrame(this.animId);
                     
-                    this.recordedData = [Math.random()*40+30, Math.random()*40+30, Math.random()*40+30, Math.random()*40+30, Math.random()*40+30];
-                    const detectedHz = Math.floor(Math.random()*150+200);
-                    const syncRate = (Math.random()*30+60).toFixed(1); 
+                    // ★ 実際のFFT分析を実行
+                    const analysis = this.analyzeRecordedAudio();
+                    this.recordedData = analysis.fiveElements;
+                    const detectedHz = analysis.dominantFreq;
+                    const syncRate = analysis.syncRate;
 
                     document.getElementById('voice-comment').innerHTML = `
                         <div class="flex justify-center gap-8 font-mono text-xs mb-2">
@@ -446,12 +490,95 @@
                     // 音声データを生成・保存・描画
                     this.generateResonanceBuffer();
                     // 期間表示を更新
-                    document.getElementById('duration-display').textContent = `(${this.audioDuration}s)`;
+                    const durationEl = document.getElementById('duration-display');
+                    if (durationEl) {
+                        durationEl.textContent = `(${this.audioDuration}s)`;
+                    }
                     this.showStep('step4');
                     this.draw3LayerRadar();
                     this.drawFinalWaveform(); // ★最終波形を描画
 
                 }, 3000);
+            },
+
+            // ★ 新規追加: 実際のFFT分析関数
+            analyzeRecordedAudio: function() {
+                if (this.audioSamples.length === 0) {
+                    console.warn("No audio samples recorded");
+                    return {
+                        fiveElements: [50, 50, 50, 50, 50],
+                        dominantFreq: 200,
+                        syncRate: 50.0
+                    };
+                }
+
+                // サンプリングレート44100Hzの場合、analyzerのfftSizeが2048なら
+                // 各binは約21.5Hz (44100 / 2048)
+                const sampleRate = this.ctx.sampleRate;
+                const fftSize = this.analyzer.fftSize;
+                const binWidth = sampleRate / fftSize;
+
+                // 周波数帯域の定義（五行に対応）
+                // 木(100-300Hz), 火(300-600Hz), 土(600-1000Hz), 金(1000-2000Hz), 水(2000-4000Hz)
+                const bands = [
+                    { name: '木', min: 100, max: 300 },
+                    { name: '火', min: 300, max: 600 },
+                    { name: '土', min: 600, max: 1000 },
+                    { name: '金', min: 1000, max: 2000 },
+                    { name: '水', min: 2000, max: 4000 }
+                ];
+
+                // 全サンプルの平均スペクトルを計算
+                const avgSpectrum = new Float32Array(this.audioSamples[0].length);
+                for (let sample of this.audioSamples) {
+                    for (let i = 0; i < sample.length; i++) {
+                        avgSpectrum[i] += sample[i];
+                    }
+                }
+                for (let i = 0; i < avgSpectrum.length; i++) {
+                    avgSpectrum[i] /= this.audioSamples.length;
+                }
+
+                // 各帯域のエネルギーを計算
+                const bandEnergies = bands.map(band => {
+                    const startBin = Math.floor(band.min / binWidth);
+                    const endBin = Math.floor(band.max / binWidth);
+                    let energy = 0;
+                    for (let i = startBin; i <= endBin && i < avgSpectrum.length; i++) {
+                        energy += avgSpectrum[i];
+                    }
+                    return energy / (endBin - startBin + 1);
+                });
+
+                // 0-100のスケールに正規化
+                const maxEnergy = Math.max(...bandEnergies, 1);
+                const fiveElements = bandEnergies.map(e => Math.min(100, (e / maxEnergy) * 100));
+
+                // 優勢な周波数を検出
+                let maxVal = 0;
+                let maxIdx = 0;
+                for (let i = 0; i < avgSpectrum.length; i++) {
+                    if (avgSpectrum[i] > maxVal) {
+                        maxVal = avgSpectrum[i];
+                        maxIdx = i;
+                    }
+                }
+                const dominantFreq = Math.round(maxIdx * binWidth);
+
+                // 守護周波数との同期率を計算
+                const targetFreq = this.elements.guard.freq;
+                const freqDiff = Math.abs(dominantFreq - targetFreq);
+                const syncRate = Math.max(0, Math.min(100, 100 - (freqDiff / targetFreq * 100))).toFixed(1);
+
+                console.log("✅ FFT Analysis Results:", {
+                    fiveElements,
+                    dominantFreq,
+                    syncRate,
+                    sampleCount: this.audioSamples.length,
+                    bands: bands.map((b, i) => `${b.name}: ${fiveElements[i].toFixed(1)}`)
+                });
+
+                return { fiveElements, dominantFreq, syncRate };
             },
 
             // ★追加: 最終的な音声データを生成する関数
@@ -528,9 +655,29 @@
                 const c = canvas.getContext('2d');
                 const bufferLength = this.analyzer.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
+                const freqArray = new Uint8Array(bufferLength); // 周波数データ用
+                let lastSampleTime = Date.now();
+                const statusEl = document.getElementById('rec-status');
+                
                 const draw = () => {
                     this.animId = requestAnimationFrame(draw);
                     this.analyzer.getByteTimeDomainData(dataArray);
+                    
+                    // 周波数データを100msごとにサンプリング
+                    const now = Date.now();
+                    if (now - lastSampleTime > 100) {
+                        this.analyzer.getByteFrequencyData(freqArray);
+                        this.frequencyData.push(new Uint8Array(freqArray)); // コピーして保存
+                        lastSampleTime = now;
+                        
+                        // 録音状況を表示
+                        if (statusEl) {
+                            const duration = ((now - this.recordingStartTime) / 1000).toFixed(1);
+                            statusEl.textContent = `Recording: ${duration}s | Samples: ${this.frequencyData.length}`;
+                            statusEl.className = 'mt-4 text-xs text-teal-400 font-mono text-center h-4';
+                        }
+                    }
+                    
                     c.fillStyle = 'rgba(0, 0, 0, 0.3)';
                     c.fillRect(0, 0, canvas.width, canvas.height);
                     c.lineWidth=1; c.strokeStyle='rgba(30,41,59,0.5)'; c.beginPath(); c.moveTo(0,canvas.height/2); c.lineTo(canvas.width,canvas.height/2); c.stroke();
