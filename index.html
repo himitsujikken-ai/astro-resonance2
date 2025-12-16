@@ -69,7 +69,7 @@
                 </div>
                 <div class="hidden md:flex items-center gap-4 text-xs font-mono text-slate-500">
                     <span>SYS: ONLINE</span>
-                    <span>VER: 3.0.1</span>
+                    <span>VER: 3.1.0</span>
                 </div>
             </div>
         </header>
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <div id="step1" class="glass-panel rounded-3xl p-8 mb-10 anim-entry delay-200">
+            <div id="step1" class="glass-panel rounded-3xl p-8 mb-10 anim-entry delay-200 transition-all duration-500">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="h-8 w-8 rounded bg-slate-800 text-slate-400 flex items-center justify-center font-mono text-sm border border-slate-700">01</div>
                     <h2 class="text-xl font-bold text-slate-100">解析パラメーター入力</h2>
@@ -196,7 +196,7 @@
 
             <div id="step4" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-teal-500/50">
                 <div class="text-center mb-8">
-                    <div class="inline-block px-4 py-1 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 text-xs font-bold tracking-widest mb-4">
+                    <div class="inline-block px-4 py-1 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 text-xs font-bold tracking-widest mb-4 animate-pulse">
                         SYNC COMPLETE
                     </div>
                     <h3 class="text-2xl font-cinzel text-slate-100 mb-2">多次元統合完了</h3>
@@ -279,8 +279,6 @@
                 for(let i=0; i<name.length; i++) {
                     score += name.charCodeAt(i);
                 }
-                // 名前から五行バランス（レーダーチャート用）を擬似生成
-                // 実際はカタカムナ48音の思念表を使うが、ここではデモ用にハッシュ生成
                 const seed = score;
                 return [
                     (seed % 100) * 0.8 + 20,
@@ -297,23 +295,34 @@
             ctx: null, analyzer: null, micSrc: null,
             isPlaying: false, animId: null, elements: null,
             chart: null,
-            recordedData: [50, 50, 50, 50, 50], // マイク入力結果用
-            nameData: [0,0,0,0,0], // カタカムナデータ
+            recordedData: [50, 50, 50, 50, 50],
+            nameData: [0,0,0,0,0],
             
             init: function() {
                 // URLパラメータ処理
                 const p = new URLSearchParams(window.location.search);
                 const dob = p.get('dob');
                 const name = p.get('name');
+                
                 if(dob) {
+                    // ★変更点：データは入力するが、Step 1で止まる
                     const fmt = dob.substring(0,4)+'-'+dob.substring(4,6)+'-'+dob.substring(6,8);
                     document.getElementById('inp-date').value = fmt;
                     if(name) document.getElementById('inp-name').value = decodeURIComponent(name);
-                    setTimeout(() => this.analyzeSequence(), 800);
+                    
+                    // スクロールと演出
+                    setTimeout(() => {
+                        document.getElementById('step1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // ボタンを強調（押すことを促す）
+                        const btn = document.getElementById('btn-analyze');
+                        btn.classList.add('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900');
+                        setTimeout(() => btn.classList.remove('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900'), 1500);
+                    }, 600);
                 }
             },
 
-            // 演出付き解析シーケンス
+            // 演出付き解析シーケンス (Step 1 -> 2)
             analyzeSequence: function() {
                 const btn = document.getElementById('btn-analyze');
                 const originalText = btn.innerText;
@@ -346,7 +355,7 @@
                 this.elements = Logic.calcElements(date);
                 this.nameData = Logic.calcNameValue(name || "dummy");
 
-                // STEP 2 詳細解説の生成 (5-7行相当のボリューム)
+                // Step 2 HTML生成
                 const html = `
                     <div class="glass-panel p-4 rounded-xl border-l-2 border-l-slate-500">
                         <div class="text-[10px] font-mono text-slate-500 mb-1">SOUL TYPE</div>
@@ -397,7 +406,6 @@
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 
-                // ターゲット周波数
                 osc.frequency.setValueAtTime(this.elements.guard.freq, this.ctx.currentTime);
                 
                 gain.gain.setValueAtTime(0, this.ctx.currentTime);
@@ -426,7 +434,7 @@
                 }, 4000);
             },
 
-            // マイク録音 & 疑似解析
+            // マイク録音
             startMic: function() {
                 this.initAudio();
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -442,33 +450,57 @@
                 }).catch(e => alert("MIC ACCESS DENIED"));
             },
 
+            // ★変更点：停止後のドラマチックな解析演出 (Step 3 -> 4)
             stopMic: function() {
-                if(this.micSrc) this.micSrc.disconnect();
-                cancelAnimationFrame(this.animId);
+                // UIを「処理中」モードに
+                const btnStop = document.getElementById('btn-stop');
+                btnStop.disabled = true;
+                btnStop.classList.remove('bg-slate-100', 'text-slate-900');
+                btnStop.classList.add('bg-slate-800', 'text-teal-400', 'animate-pulse');
                 
-                // マイク入力からランダムな「生体データ」を生成したと仮定
-                // ※本来はFFT解析結果を5要素にマッピングするが、デモ用にランダム生成
-                this.recordedData = [
-                    Math.random() * 40 + 30,
-                    Math.random() * 40 + 30,
-                    Math.random() * 40 + 30,
-                    Math.random() * 40 + 30,
-                    Math.random() * 40 + 30
+                // メッセージシーケンス
+                const msgs = [
+                    "INTEGRATING BIO-RHYTHM...", 
+                    "FFT ANALYSIS: PROCESSING...", 
+                    "ALIGNING DIMENSIONS...", 
+                    "FINALIZING RESONANCE..."
                 ];
+                let i = 0;
                 
-                const detectedHz = Math.floor(Math.random() * 150 + 200);
-                const syncRate = (Math.random() * 30 + 60).toFixed(1); // 60-90%
+                const timer = setInterval(() => {
+                    btnStop.innerText = "■ " + msgs[i++ % msgs.length];
+                }, 700);
 
-                document.getElementById('voice-comment').innerHTML = `
-                    <div class="flex justify-center gap-8 font-mono text-xs mb-2">
-                        <span>VOICE: <b class="text-teal-400">${detectedHz} Hz</b></span>
-                        <span>TARGET: <b class="text-yellow-400">${this.elements.guard.freq} Hz</b></span>
-                    </div>
-                    <div class="text-xl font-bold text-teal-300">SYNC RATE: ${syncRate}%</div>
-                `;
-                
-                this.showStep('step4');
-                this.draw3LayerRadar();
+                // 3秒間待機（ドラマチックな間）
+                setTimeout(() => {
+                    clearInterval(timer);
+                    if(this.micSrc) this.micSrc.disconnect();
+                    cancelAnimationFrame(this.animId);
+                    
+                    // 解析完了処理
+                    this.recordedData = [
+                        Math.random() * 40 + 30,
+                        Math.random() * 40 + 30,
+                        Math.random() * 40 + 30,
+                        Math.random() * 40 + 30,
+                        Math.random() * 40 + 30
+                    ];
+                    
+                    const detectedHz = Math.floor(Math.random() * 150 + 200);
+                    const syncRate = (Math.random() * 30 + 60).toFixed(1); 
+
+                    document.getElementById('voice-comment').innerHTML = `
+                        <div class="flex justify-center gap-8 font-mono text-xs mb-2">
+                            <span>VOICE: <b class="text-teal-400">${detectedHz} Hz</b></span>
+                            <span>TARGET: <b class="text-yellow-400">${this.elements.guard.freq} Hz</b></span>
+                        </div>
+                        <div class="text-xl font-bold text-teal-300">SYNC RATE: ${syncRate}%</div>
+                    `;
+                    
+                    this.showStep('step4');
+                    this.draw3LayerRadar();
+
+                }, 3000); // 3000ms delay
             },
 
             // --- 3. WAVEFORM VISUALIZER ---
@@ -477,7 +509,6 @@
                 const c = canvas.getContext('2d');
                 canvas.width = canvas.parentElement.offsetWidth;
                 canvas.height = canvas.parentElement.offsetHeight;
-                
                 c.fillStyle = '#000';
                 c.fillRect(0, 0, canvas.width, canvas.height);
                 this.drawGridLines(c, canvas.width, canvas.height);
@@ -499,7 +530,7 @@
                     this.drawGridLines(c, canvas.width, canvas.height);
 
                     c.lineWidth = 2;
-                    c.strokeStyle = '#14b8a6'; // Teal-500
+                    c.strokeStyle = '#14b8a6'; 
                     c.shadowBlur = 8;
                     c.shadowColor = '#14b8a6';
                     
@@ -521,7 +552,6 @@
                     c.lineTo(canvas.width, canvas.height/2);
                     c.stroke();
                     
-                    // Gain表示更新
                     if(maxAmp > 0) {
                         const db = (20 * Math.log10(maxAmp/128)).toFixed(1);
                         document.getElementById('gain-val').innerText = db > -100 ? db + " dB" : "-INF";
@@ -534,7 +564,7 @@
                 c.lineWidth = 1;
                 c.strokeStyle = 'rgba(30, 41, 59, 0.5)';
                 c.beginPath();
-                c.moveTo(0, h/2); c.lineTo(w, h/2); // Center line
+                c.moveTo(0, h/2); c.lineTo(w, h/2);
                 c.stroke();
             },
 
@@ -544,10 +574,6 @@
                 Chart.defaults.color = '#64748b';
                 Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
                 
-                // 算命学データ（理想・ターゲット）: 正五角形に近いバランス
-                // カタカムナデータ（資質）: 名前のハッシュ値
-                // 生声データ（現状）: 録音時の乱数
-                
                 if(this.chart) this.chart.destroy();
                 this.chart = new Chart(ctx, {
                     type: 'radar',
@@ -556,8 +582,8 @@
                         datasets: [
                             {
                                 label: '算命学 (IDEAL)',
-                                data: [80, 80, 100, 80, 80], // 守護要素が100の理想形
-                                borderColor: '#eab308', // Yellow
+                                data: [80, 80, 100, 80, 80], 
+                                borderColor: '#eab308', 
                                 backgroundColor: 'rgba(234, 179, 8, 0.1)',
                                 borderWidth: 2,
                                 pointRadius: 0
@@ -565,7 +591,7 @@
                             {
                                 label: 'カタカムナ (NAME)',
                                 data: this.nameData,
-                                borderColor: '#14b8a6', // Teal
+                                borderColor: '#14b8a6', 
                                 backgroundColor: 'rgba(20, 184, 166, 0.0)',
                                 borderWidth: 2,
                                 borderDash: [5, 5],
@@ -574,7 +600,7 @@
                             {
                                 label: '生体音声 (VOICE)',
                                 data: this.recordedData,
-                                borderColor: '#d946ef', // Fuchsia
+                                borderColor: '#d946ef', 
                                 backgroundColor: 'rgba(217, 70, 239, 0.2)',
                                 borderWidth: 2,
                                 pointBackgroundColor: '#d946ef'
@@ -602,23 +628,20 @@
                 });
             },
 
-            // --- 5. REAL WAV DOWNLOAD GENERATOR ---
+            // --- 5. WAV DOWNLOAD ---
             downloadWav: function() {
                 const sampleRate = 44100;
-                const duration = 10; // 10秒
+                const duration = 10;
                 const numChannels = 1;
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
                 const freq = this.elements.guard.freq;
 
-                // 実際のSine波を生成
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
-                    // フェードイン・アウト処理
                     let envelope = 1;
                     if (t < 1) envelope = t; 
                     if (t > duration - 1) envelope = duration - t;
-                    
                     buffer[i] = Math.sin(2 * Math.PI * freq * t) * 0.5 * envelope;
                 }
 
@@ -635,7 +658,6 @@
             encodeWAV: function(samples, sampleRate) {
                 const buffer = new ArrayBuffer(44 + samples.length * 2);
                 const view = new DataView(buffer);
-
                 const writeString = (view, offset, string) => {
                     for (let i = 0; i < string.length; i++) {
                         view.setUint8(offset + i, string.charCodeAt(i));
