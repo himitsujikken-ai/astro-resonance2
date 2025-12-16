@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro-Resonance | 運命の周波数調整</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050510;
+            --text-color: #fff;
+            --accent-color: #bfa5ff; /* 薄紫 */
+            --highlight: #e91e63; /* ピンク */
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #bfa5ff, #e91e63);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+            letter-spacing: 0.2em;
+            margin-bottom: 40px;
+        }
+
+        /* --- UI Components --- */
+        .step-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            display: none; /* 初期状態は非表示（JSで制御） */
+        }
+        .step-box.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 0.8rem; color: #ccc; margin-bottom: 5px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-primary { background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; }
+        .btn-success { background: linear-gradient(45deg, #11998e, #38ef7d); color: white; }
+        .btn-mic { background: linear-gradient(45deg, #ff512f, #dd2476); color: white; }
+        .btn-dl { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
+        
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+
+        /* --- Visualizer --- */
+        canvas {
+            width: 100%;
+            height: 150px;
+            background: #000;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        /* --- Result Area --- */
+        .result-tag {
+            display: inline-block;
+            background: rgba(233, 30, 99, 0.2);
+            border: 1px solid #e91e63;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+
+        /* --- Chart Wrapper --- */
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Astro-Resonance</h1>
+        <div class="subtitle">運命の周波数チューニング</div>
+
+        <div id="step1" class="step-box active">
+            <div class="form-group">
+                <label>お名前（ひらがな）</label>
+                <input type="text" id="inp-name" placeholder="あかさ" value="たなかたろう">
+            </div>
+            <div class="form-group">
+                <label>生年月日</label>
+                <input type="date" id="inp-date" value="1995-08-08">
+            </div>
+            <button class="btn-primary" onclick="app.analyze()">1. 運命を解析する</button>
+        </div>
+
+        <div id="step2" class="step-box">
+            <div id="sanmei-result">
+                </div>
+            <p style="font-size:0.9rem; color:#ccc; margin-top:20px;">
+                あなたのエネルギー不足を補う「守護神サウンド」を生成しました。<br>
+                まずは音を聴いて、波動を確認してください。
+            </p>
+            <button class="btn-success" id="btn-play" onclick="app.playSound()">2. 守護音を再生して確認</button>
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <div id="step3" class="step-box">
+            <div style="border-left: 3px solid #e91e63; padding-left: 15px; text-align: left; margin-bottom:20px;">
+                <strong>チューニングの最終工程</strong><br>
+                <span style="font-size:0.8rem; color:#aaa;">守護神サウンドに合わせて、あなたの「声」を入力してください。</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-mic" id="btn-rec" onclick="app.startMic()">3. 声を入力 (録音)</button>
+                <button class="btn-primary" id="btn-stop" onclick="app.stopMic()" disabled>停止＆解析</button>
+            </div>
+        </div>
+
+        <div id="step4" class="step-box">
+            <div style="color:#38ef7d; font-weight:bold; margin-bottom:10px;">✨ 共鳴完了 ✨</div>
+            <div id="voice-comment" style="font-size:0.9rem; margin-bottom:20px;"></div>
+            
+            <div class="chart-wrapper">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <button class="btn-dl" onclick="app.download()">↓ 完成した「共鳴お守り」を保存 (.wav)</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 簡易的な算命学ロジック（デモ用） ---
+        const Sanmeigaku = {
+            elements: ["木 (Wood)", "火 (Fire)", "土 (Earth)", "金 (Metal)", "水 (Water)"],
+            calculate: function(dateStr) {
+                // 生年月日から簡易的に守護元素を算出するハッシュ関数的なロジック
+                const d = new Date(dateStr);
+                const val = d.getFullYear() + d.getMonth() + d.getDate();
+                const myElemIndex = val % 5;
+                const guardianIndex = (myElemIndex + 2) % 5; // 相生の関係（例）
+                return {
+                    myElement: this.elements[myElemIndex],
+                    guardianElement: this.elements[guardianIndex]
+                };
+            }
+        };
+
+        // --- アプリ本体 ---
+        const app = {
+            audioCtx: null,
+            isPlaying: false,
+            analyser: null,
+            dataArray: null,
+            animationId: null,
+            generatedBuffer: null,
+            micStream: null,
+            radarChart: null,
+
+            // ★ここが連携のキモ！
+            init: function() {
+                // URLパラメータを取得
+                const params = new URLSearchParams(window.location.search);
+                const dob = params.get('dob');
+                const name = params.get('name');
+
+                if (dob) {
+                    // 19950808 -> 1995-08-08 形式に変換
+                    const fmtDate = dob.substring(0,4) + '-' + dob.substring(4,6) + '-' + dob.substring(6,8);
+                    document.getElementById('inp-date').value = fmtDate;
+                    
+                    if (name) {
+                        document.getElementById('inp-name').value = decodeURIComponent(name);
+                    }
+
+                    // 自動実行
+                    console.log("連携データを検出: 自動解析します");
+                    setTimeout(() => {
+                        this.analyze();
+                    }, 500); // 少し待ってから実行（演出用）
+                }
+            },
+
+            analyze: function() {
+                const date = document.getElementById('inp-date').value;
+                if (!date) return alert("日付を入れてください");
+
+                const result = Sanmeigaku.calculate(date);
+                
+                // 結果表示
+                const html = `
+                    <div style="font-size:0.9rem; color:#aaa;">算命学解析結果</div>
+                    <div style="font-size:1.2rem; margin:10px 0;">
+                        魂の属性: <span class="result-tag">${result.myElement}</span><br>
+                        守護タイプ: <span class="result-tag" style="border-color:#bfa5ff; background:rgba(191,165,255,0.2);">${result.guardianElement}</span>
+                    </div>
+                `;
+                document.getElementById('sanmei-result').innerHTML = html;
+
+                // Step 2を表示
+                document.getElementById('step2').classList.add('active');
+                
+                // 自動スクロール
+                document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+            },
+
+            playSound: function() {
+                if (this.isPlaying) return;
+                this.initAudio();
+
+                // 音の生成 (528Hz + 倍音)
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(528, this.audioCtx.currentTime); // ソルフェジオ
+                
+                gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.3, this.audioCtx.currentTime + 1);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 5);
+
+                osc.connect(gain);
+                gain.connect(this.analyser); // 可視化用
+                gain.connect(this.audioCtx.destination); // 出力
+
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + 5);
+                
+                this.isPlaying = true;
+                document.getElementById('btn-play').innerText = "♪ 再生中...";
+
+                // オフラインレンダリング（保存用データの作成）
+                this.renderOffline();
+
+                // 可視化開始
+                this.draw();
+
+                // 4秒後にStep 3へ
+                setTimeout(() => {
+                    this.isPlaying = false;
+                    document.getElementById('btn-play').innerText = "2. 再生完了";
+                    document.getElementById('step3').classList.add('active');
+                    document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
+                }, 4000);
+            },
+
+            initAudio: function() {
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.audioCtx.createAnalyser();
+                    this.analyser.fftSize = 2048;
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            },
+
+            draw: function() {
+                const canvas = document.getElementById('visualizer');
+                const ctx = canvas.getContext('2d');
+                const WIDTH = canvas.width;
+                const HEIGHT = canvas.height;
+
+                const drawLoop = () => {
+                    this.animationId = requestAnimationFrame(drawLoop);
+                    this.analyser.getByteTimeDomainData(this.dataArray);
+
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#bfa5ff';
+                    ctx.beginPath();
+
+                    const sliceWidth = WIDTH * 1.0 / this.analyser.frequencyBinCount;
+                    let x = 0;
+
+                    for(let i = 0; i < this.analyser.frequencyBinCount; i++) {
+                        const v = this.dataArray[i] / 128.0;
+                        const y = v * HEIGHT / 2;
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                        x += sliceWidth;
+                    }
+                    ctx.lineTo(canvas.width, canvas.height/2);
+                    ctx.stroke();
+                };
+                drawLoop();
+            },
+
+            startMic: function() {
+                this.initAudio();
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    this.micStream = stream;
+                    const source = this.audioCtx.createMediaStreamSource(stream);
+                    source.connect(this.analyser);
+                    
+                    document.getElementById('btn-rec').innerText = "録音中...";
+                    document.getElementById('btn-rec').disabled = true;
+                    document.getElementById('btn-stop').disabled = false;
+                    
+                    // 可視化は継続中
+                })
+                .catch(e => alert("マイクへのアクセスが拒否されました"));
+            },
+
+            stopMic: function() {
+                if (this.micStream) {
+                    this.micStream.getTracks().forEach(track => track.stop());
+                }
+                cancelAnimationFrame(this.animationId);
+
+                // 解析結果生成（ランダム要素を含むデモ）
+                const pitch = Math.floor(Math.random() * 300) + 200;
+                
+                document.getElementById('step3').style.display = 'none'; // Step 3を消す
+                document.getElementById('step4').classList.add('active');
+                
+                const comment = `あなたの声の基本周波数: <strong>${pitch}Hz</strong><br>守護神の周波数と深く共鳴し、チャクラが活性化されました。`;
+                document.getElementById('voice-comment').innerHTML = comment;
+
+                // チャート描画
+                this.drawRadar(pitch);
+                document.getElementById('step4').scrollIntoView({ behavior: 'smooth' });
+            },
+
+            drawRadar: function(pitch) {
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                const dataVals = [
+                    Math.random()*30+70, Math.random()*30+70, Math.random()*30+70, 
+                    Math.random()*30+70, Math.random()*30+70
+                ];
+                
+                this.radarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['木 (成長)', '火 (情熱)', '土 (安定)', '金 (収穫)', '水 (知性)'],
+                        datasets: [{
+                            label: '共鳴エネルギー',
+                            data: dataVals,
+                            backgroundColor: 'rgba(233, 30, 99, 0.2)',
+                            borderColor: 'rgba(233, 30, 99, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255,255,255,0.2)' },
+                                grid: { color: 'rgba(255,255,255,0.2)' },
+                                pointLabels: { color: '#ccc' },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            },
+
+            renderOffline: function() {
+                // ダウンロード用のダミーWav生成ロジック（実際にはAudioBufferをWav変換する）
+                // ここでは簡易的に空の処理（DLボタンを押すとアラートが出ないようにする）
+                // 本格実装時は audioUtils.ts の bufferToWave をここに移植する
+            },
+
+            download: function() {
+                alert("共鳴音（.wav）のダウンロードを開始します...");
+                // ダミーファイルDL
+                const blob = new Blob(["RIFF....WAVEfmt ...data..."], { type: "audio/wav" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "astro_resonance.wav";
+                a.click();
+            }
+        };
+
+        // 起動
+        window.onload = function() {
+            app.init();
+        };
+    </script>
+</body>
+</html>
