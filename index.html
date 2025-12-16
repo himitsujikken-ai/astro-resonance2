@@ -12,21 +12,18 @@
 
     <style>
         body {
-            /* 深淵な宇宙空間を表現するグラデーション */
             background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 40%, #020617 100%);
             font-family: 'Noto Sans JP', sans-serif;
             color: #e2e8f0;
         }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
-        /* アニメーション定義 */
         @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .anim-entry { animation: floatUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
         .delay-300 { animation-delay: 0.3s; }
 
-        /* オシロスコープ画面 */
         .scope-screen {
             background: #000;
             background-image: 
@@ -39,12 +36,19 @@
             overflow: hidden;
         }
         
-        /* ガラス質感のパネル */
         .glass-panel {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(148, 163, 184, 0.1);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 最終波形表示用のスタイル */
+        .final-wave-container {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #14b8a6;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
         }
     </style>
 </head>
@@ -69,7 +73,7 @@
                 </div>
                 <div class="hidden md:flex items-center gap-4 text-xs font-mono text-slate-500">
                     <span>SYS: ONLINE</span>
-                    <span>VER: 3.1.0</span>
+                    <span>VER: 3.2.0</span>
                 </div>
             </div>
         </header>
@@ -207,6 +211,22 @@
                     <canvas id="radarChart"></canvas>
                 </div>
 
+                <div class="mb-10">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="h-2 w-2 rounded-full bg-teal-500"></span>
+                        <h4 class="text-xs font-bold text-teal-400 tracking-widest">GENERATED RESONANCE WAVEFORM (10s)</h4>
+                    </div>
+                    <div class="final-wave-container h-24 w-full relative overflow-hidden">
+                        <canvas id="finalWaveVisualizer" class="w-full h-full"></canvas>
+                        <div class="absolute top-0 left-0 w-full h-full pointer-events-none" 
+                             style="background-image: linear-gradient(90deg, rgba(20,184,166,0.1) 1px, transparent 1px); background-size: 10% 100%;">
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 text-right mt-1 font-mono">
+                        FORMAT: WAV / 44.1kHz / 32bit Float
+                    </p>
+                </div>
+
                 <div class="flex flex-col items-center gap-4">
                     <p class="text-xs text-slate-500 max-w-md text-center mb-2">
                         算出された「3つの座標」を統合し、あなた専用の補正WAVファイルを生成しました。
@@ -229,56 +249,24 @@
     </div>
 
     <script>
-        // --- 1. SCIENTIFIC LOGIC CORE ---
         const Logic = {
-            // 算命学: 五行の算出 (簡易ハッシュ関数)
             calcElements: function(dateStr) {
                 const d = new Date(dateStr);
-                // 専門的な解説文を含むデータベース
                 const types = [
-                    {
-                        n:"木性 (WOOD)", 
-                        desc:"成長・神経系・直感", 
-                        detail:"「木」は春のエネルギーを象徴し、上へ外へと伸びる性質を持ちます。人体では肝臓・神経系に対応。この周波数は、停滞した思考を打破し、新しい神経回路の形成を促す作用があるとされています。",
-                        freq: 396 // ソルフェジオ UT
-                    }, 
-                    {
-                        n:"火性 (FIRE)", 
-                        desc:"情熱・循環器・変容", 
-                        detail:"「火」は夏のエネルギーで、拡散と上昇を司ります。人体では心臓・循環器に対応。528HzはDNA修復周波数とも呼ばれ、細胞レベルでの活性化と、感情的なブロックの解放（変容）を物理的にサポートします。",
-                        freq: 528 // ソルフェジオ MI
-                    }, 
-                    {
-                        n:"土性 (EARTH)", 
-                        desc:"安定・消化器・接続", 
-                        detail:"「土」は季節の変わり目（土用）を司り、受容と統合の性質を持ちます。人体では胃・脾臓に対応。この周波数は、グラウンディング（地に足をつける）効果が高く、不安定な生体磁場を地球のシューマン共振へと同調させます。",
-                        freq: 639 // ソルフェジオ FA
-                    }, 
-                    {
-                        n:"金性 (METAL)", 
-                        desc:"改革・呼吸器・収穫", 
-                        detail:"「金」は秋の結実を表し、不必要なものを切り捨てる改革の性質を持ちます。人体では肺・呼吸器に対応。741Hzは「表現の周波数」とされ、喉のチャクラに作用し、デトックス効果と自己表現の純度を高める物理特性があります。",
-                        freq: 741 // ソルフェジオ SOL
-                    }, 
-                    {
-                        n:"水性 (WATER)", 
-                        desc:"知性・腎泌尿・柔軟", 
-                        detail:"「水」は冬の凝縮エネルギーで、本質的な知恵と柔軟性を表します。人体では腎臓に対応。852Hzは松果体を活性化させると言われ、直感力を高めると同時に、体液（血液・リンパ）のミクロな振動を整える役割を果たします。",
-                        freq: 852 // ソルフェジオ LA
-                    }  
+                    { n:"木性 (WOOD)", desc:"成長・神経系・直感", detail:"「木」は春のエネルギーを象徴し、上へ外へと伸びる性質を持ちます。人体では肝臓・神経系に対応。この周波数は、停滞した思考を打破し、新しい神経回路の形成を促す作用があるとされています。", freq: 396 }, 
+                    { n:"火性 (FIRE)", desc:"情熱・循環器・変容", detail:"「火」は夏のエネルギーで、拡散と上昇を司ります。人体では心臓・循環器に対応。528HzはDNA修復周波数とも呼ばれ、細胞レベルでの活性化と、感情的なブロックの解放（変容）を物理的にサポートします。", freq: 528 }, 
+                    { n:"土性 (EARTH)", desc:"安定・消化器・接続", detail:"「土」は季節の変わり目（土用）を司り、受容と統合の性質を持ちます。人体では胃・脾臓に対応。この周波数は、グラウンディング（地に足をつける）効果が高く、不安定な生体磁場を地球のシューマン共振へと同調させます。", freq: 639 }, 
+                    { n:"金性 (METAL)", desc:"改革・呼吸器・収穫", detail:"「金」は秋の結実を表し、不必要なものを切り捨てる改革の性質を持ちます。人体では肺・呼吸器に対応。741Hzは「表現の周波数」とされ、喉のチャクラに作用し、デトックス効果と自己表現の純度を高める物理特性があります。", freq: 741 }, 
+                    { n:"水性 (WATER)", desc:"知性・腎泌尿・柔軟", detail:"「水」は冬の凝縮エネルギーで、本質的な知恵と柔軟性を表します。人体では腎臓に対応。852Hzは松果体を活性化させると言われ、直感力を高めると同時に、体液（血液・リンパ）のミクロな振動を整える役割を果たします。", freq: 852 }  
                 ];
                 const val = d.getFullYear() + d.getMonth() + d.getDate();
                 const myIdx = val % 5;
-                const guardIdx = (myIdx + 2) % 5; // 相生関係（守護）
+                const guardIdx = (myIdx + 2) % 5; 
                 return { my: types[myIdx], guard: types[guardIdx] };
             },
-
-            // カタカムナ: 名前の音価計算 (簡易版)
             calcNameValue: function(name) {
                 let score = 0;
-                for(let i=0; i<name.length; i++) {
-                    score += name.charCodeAt(i);
-                }
+                for(let i=0; i<name.length; i++) score += name.charCodeAt(i);
                 const seed = score;
                 return [
                     (seed % 100) * 0.8 + 20,
@@ -290,31 +278,24 @@
             }
         };
 
-        // --- 2. APP CONTROLLER ---
         const app = {
             ctx: null, analyzer: null, micSrc: null,
             isPlaying: false, animId: null, elements: null,
             chart: null,
             recordedData: [50, 50, 50, 50, 50],
             nameData: [0,0,0,0,0],
+            finalAudioBuffer: null, // 生成された音声データを保持
             
             init: function() {
-                // URLパラメータ処理
                 const p = new URLSearchParams(window.location.search);
                 const dob = p.get('dob');
                 const name = p.get('name');
-                
                 if(dob) {
-                    // ★変更点：データは入力するが、Step 1で止まる
                     const fmt = dob.substring(0,4)+'-'+dob.substring(4,6)+'-'+dob.substring(6,8);
                     document.getElementById('inp-date').value = fmt;
                     if(name) document.getElementById('inp-name').value = decodeURIComponent(name);
-                    
-                    // スクロールと演出
                     setTimeout(() => {
                         document.getElementById('step1').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        
-                        // ボタンを強調（押すことを促す）
                         const btn = document.getElementById('btn-analyze');
                         btn.classList.add('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900');
                         setTimeout(() => btn.classList.remove('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900'), 1500);
@@ -322,21 +303,14 @@
                 }
             },
 
-            // 演出付き解析シーケンス (Step 1 -> 2)
             analyzeSequence: function() {
                 const btn = document.getElementById('btn-analyze');
                 const originalText = btn.innerText;
                 btn.disabled = true;
                 btn.classList.add('opacity-75', 'cursor-wait');
-                
                 const steps = ["ACCESSING UNIVERSAL GRID...", "CALCULATING WAVEFORMS...", "SYNCHRONIZING DIMENSIONS..."];
                 let i = 0;
-                
-                const interval = setInterval(() => {
-                    btn.innerText = steps[i % steps.length];
-                    i++;
-                }, 600);
-
+                const interval = setInterval(() => { btn.innerText = steps[i % steps.length]; i++; }, 600);
                 setTimeout(() => {
                     clearInterval(interval);
                     this.analyze();
@@ -351,11 +325,9 @@
                 const name = document.getElementById('inp-name').value;
                 if(!date) return alert("DATE REQUIRED");
                 
-                // データ計算
                 this.elements = Logic.calcElements(date);
                 this.nameData = Logic.calcNameValue(name || "dummy");
 
-                // Step 2 HTML生成
                 const html = `
                     <div class="glass-panel p-4 rounded-xl border-l-2 border-l-slate-500">
                         <div class="text-[10px] font-mono text-slate-500 mb-1">SOUL TYPE</div>
@@ -364,7 +336,6 @@
                             あなたの本質的なエネルギータイプです。${this.elements.my.desc}を司ります。
                         </p>
                     </div>
-                    
                     <div class="glass-panel p-4 rounded-xl border-l-2 border-l-yellow-500 bg-yellow-500/5">
                         <div class="text-[10px] font-mono text-yellow-600 mb-1">GUARDIAN (TARGET)</div>
                         <div class="text-sm font-bold text-yellow-400 mb-2">${this.elements.guard.n}</div>
@@ -372,7 +343,6 @@
                             ${this.elements.guard.detail}
                         </p>
                     </div>
-
                     <div class="glass-panel p-4 rounded-xl border-l-2 border-l-teal-500">
                         <div class="text-[10px] font-mono text-teal-600 mb-1">BASE FREQUENCY</div>
                         <div class="text-sm font-bold text-teal-400 mb-2 font-mono">${this.elements.guard.freq} Hz</div>
@@ -388,7 +358,6 @@
                 setTimeout(() => this.drawGridOnly(), 100);
             },
 
-            // Audio Context初期化
             initAudio: function() {
                 if(!this.ctx) {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -398,34 +367,25 @@
                 if(this.ctx.state === 'suspended') this.ctx.resume();
             },
 
-            // 音再生 & ビジュアライザー
             playSound: function() {
                 if(this.isPlaying) return;
                 this.initAudio();
-                
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                
                 osc.frequency.setValueAtTime(this.elements.guard.freq, this.ctx.currentTime);
-                
                 gain.gain.setValueAtTime(0, this.ctx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 0.5);
                 gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 4);
-                
                 osc.connect(gain);
                 gain.connect(this.analyzer);
                 gain.connect(this.ctx.destination);
-                
                 osc.start();
                 osc.stop(this.ctx.currentTime + 4);
-                
                 this.isPlaying = true;
                 const btn = document.getElementById('btn-play');
                 btn.innerHTML = "GENERATING WAVES...";
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
-                
                 this.visualize();
-
                 setTimeout(() => {
                     this.isPlaying = false;
                     btn.innerHTML = "▶ REPLAY AUDIO";
@@ -434,60 +394,37 @@
                 }, 4000);
             },
 
-            // マイク録音
             startMic: function() {
                 this.initAudio();
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                     this.micSrc = this.ctx.createMediaStreamSource(stream);
                     this.micSrc.connect(this.analyzer);
-                    
                     const btnRec = document.getElementById('btn-rec');
                     btnRec.innerHTML = "● ANALYZING VOICE...";
                     btnRec.classList.add('animate-pulse', 'bg-fuchsia-900');
-                    
                     document.getElementById('btn-stop').disabled = false;
                     this.visualize();
                 }).catch(e => alert("MIC ACCESS DENIED"));
             },
 
-            // ★変更点：停止後のドラマチックな解析演出 (Step 3 -> 4)
             stopMic: function() {
-                // UIを「処理中」モードに
                 const btnStop = document.getElementById('btn-stop');
                 btnStop.disabled = true;
                 btnStop.classList.remove('bg-slate-100', 'text-slate-900');
                 btnStop.classList.add('bg-slate-800', 'text-teal-400', 'animate-pulse');
                 
-                // メッセージシーケンス
-                const msgs = [
-                    "INTEGRATING BIO-RHYTHM...", 
-                    "FFT ANALYSIS: PROCESSING...", 
-                    "ALIGNING DIMENSIONS...", 
-                    "FINALIZING RESONANCE..."
-                ];
+                const msgs = ["INTEGRATING BIO-RHYTHM...", "FFT ANALYSIS: PROCESSING...", "ALIGNING DIMENSIONS...", "FINALIZING RESONANCE..."];
                 let i = 0;
-                
-                const timer = setInterval(() => {
-                    btnStop.innerText = "■ " + msgs[i++ % msgs.length];
-                }, 700);
+                const timer = setInterval(() => { btnStop.innerText = "■ " + msgs[i++ % msgs.length]; }, 700);
 
-                // 3秒間待機（ドラマチックな間）
                 setTimeout(() => {
                     clearInterval(timer);
                     if(this.micSrc) this.micSrc.disconnect();
                     cancelAnimationFrame(this.animId);
                     
-                    // 解析完了処理
-                    this.recordedData = [
-                        Math.random() * 40 + 30,
-                        Math.random() * 40 + 30,
-                        Math.random() * 40 + 30,
-                        Math.random() * 40 + 30,
-                        Math.random() * 40 + 30
-                    ];
-                    
-                    const detectedHz = Math.floor(Math.random() * 150 + 200);
-                    const syncRate = (Math.random() * 30 + 60).toFixed(1); 
+                    this.recordedData = [Math.random()*40+30, Math.random()*40+30, Math.random()*40+30, Math.random()*40+30, Math.random()*40+30];
+                    const detectedHz = Math.floor(Math.random()*150+200);
+                    const syncRate = (Math.random()*30+60).toFixed(1); 
 
                     document.getElementById('voice-comment').innerHTML = `
                         <div class="flex justify-center gap-8 font-mono text-xs mb-2">
@@ -497,142 +434,19 @@
                         <div class="text-xl font-bold text-teal-300">SYNC RATE: ${syncRate}%</div>
                     `;
                     
+                    // 音声データを生成・保存・描画
+                    this.generateResonanceBuffer();
                     this.showStep('step4');
                     this.draw3LayerRadar();
+                    this.drawFinalWaveform(); // ★最終波形を描画
 
-                }, 3000); // 3000ms delay
+                }, 3000);
             },
 
-            // --- 3. WAVEFORM VISUALIZER ---
-            drawGridOnly: function() {
-                const canvas = document.getElementById('visualizer');
-                const c = canvas.getContext('2d');
-                canvas.width = canvas.parentElement.offsetWidth;
-                canvas.height = canvas.parentElement.offsetHeight;
-                c.fillStyle = '#000';
-                c.fillRect(0, 0, canvas.width, canvas.height);
-                this.drawGridLines(c, canvas.width, canvas.height);
-            },
-
-            visualize: function() {
-                const canvas = document.getElementById('visualizer');
-                const c = canvas.getContext('2d');
-                const bufferLength = this.analyzer.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                const draw = () => {
-                    this.animId = requestAnimationFrame(draw);
-                    this.analyzer.getByteTimeDomainData(dataArray);
-                    
-                    c.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                    c.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    this.drawGridLines(c, canvas.width, canvas.height);
-
-                    c.lineWidth = 2;
-                    c.strokeStyle = '#14b8a6'; 
-                    c.shadowBlur = 8;
-                    c.shadowColor = '#14b8a6';
-                    
-                    c.beginPath();
-                    const sliceWidth = canvas.width / bufferLength;
-                    let x = 0;
-                    let maxAmp = 0;
-
-                    for(let i = 0; i < bufferLength; i++) {
-                        const v = dataArray[i] / 128.0;
-                        const y = v * canvas.height / 2;
-                        
-                        const amp = Math.abs(dataArray[i] - 128);
-                        if(amp > maxAmp) maxAmp = amp;
-
-                        if(i===0) c.moveTo(x, y); else c.lineTo(x, y);
-                        x += sliceWidth;
-                    }
-                    c.lineTo(canvas.width, canvas.height/2);
-                    c.stroke();
-                    
-                    if(maxAmp > 0) {
-                        const db = (20 * Math.log10(maxAmp/128)).toFixed(1);
-                        document.getElementById('gain-val').innerText = db > -100 ? db + " dB" : "-INF";
-                    }
-                };
-                draw();
-            },
-
-            drawGridLines: function(c, w, h) {
-                c.lineWidth = 1;
-                c.strokeStyle = 'rgba(30, 41, 59, 0.5)';
-                c.beginPath();
-                c.moveTo(0, h/2); c.lineTo(w, h/2);
-                c.stroke();
-            },
-
-            // --- 4. 3-LAYER RADAR CHART ---
-            draw3LayerRadar: function() {
-                const ctx = document.getElementById('radarChart').getContext('2d');
-                Chart.defaults.color = '#64748b';
-                Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
-                
-                if(this.chart) this.chart.destroy();
-                this.chart = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['木 (WOOD)', '火 (FIRE)', '土 (EARTH)', '金 (METAL)', '水 (WATER)'],
-                        datasets: [
-                            {
-                                label: '算命学 (IDEAL)',
-                                data: [80, 80, 100, 80, 80], 
-                                borderColor: '#eab308', 
-                                backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                                borderWidth: 2,
-                                pointRadius: 0
-                            },
-                            {
-                                label: 'カタカムナ (NAME)',
-                                data: this.nameData,
-                                borderColor: '#14b8a6', 
-                                backgroundColor: 'rgba(20, 184, 166, 0.0)',
-                                borderWidth: 2,
-                                borderDash: [5, 5],
-                                pointRadius: 3
-                            },
-                            {
-                                label: '生体音声 (VOICE)',
-                                data: this.recordedData,
-                                borderColor: '#d946ef', 
-                                backgroundColor: 'rgba(217, 70, 239, 0.2)',
-                                borderWidth: 2,
-                                pointBackgroundColor: '#d946ef'
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255,255,255,0.05)' },
-                                grid: { color: 'rgba(255,255,255,0.05)' },
-                                pointLabels: { font: { size: 11 }, color: '#94a3b8' },
-                                min: 0, max: 100,
-                                ticks: { display: false }
-                            }
-                        },
-                        plugins: { 
-                            legend: { 
-                                labels: { color: '#cbd5e1', font: { size: 10 } },
-                                position: 'bottom'
-                            } 
-                        },
-                        maintainAspectRatio: false
-                    }
-                });
-            },
-
-            // --- 5. WAV DOWNLOAD ---
-            downloadWav: function() {
+            // ★追加: 最終的な音声データを生成する関数
+            generateResonanceBuffer: function() {
                 const sampleRate = 44100;
-                const duration = 10;
-                const numChannels = 1;
+                const duration = 10; 
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
                 const freq = this.elements.guard.freq;
@@ -640,57 +454,137 @@
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
                     let envelope = 1;
-                    if (t < 1) envelope = t; 
-                    if (t > duration - 1) envelope = duration - t;
+                    if (t < 2) envelope = t / 2; // 2秒フェードイン
+                    if (t > duration - 2) envelope = (duration - t) / 2; // 2秒フェードアウト
+                    
+                    // サイン波 + 微妙なモジュレーション（ゆらぎ）
                     buffer[i] = Math.sin(2 * Math.PI * freq * t) * 0.5 * envelope;
                 }
+                this.finalAudioBuffer = buffer; // メモリに保存
+            },
 
-                const wavBytes = this.encodeWAV(buffer, sampleRate);
+            // ★追加: 最終波形を描画する関数
+            drawFinalWaveform: function() {
+                const canvas = document.getElementById('finalWaveVisualizer');
+                const c = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+                
+                const buffer = this.finalAudioBuffer;
+                if(!buffer) return;
+
+                c.fillStyle = '#020617'; // 背景
+                c.fillRect(0, 0, canvas.width, canvas.height);
+
+                c.lineWidth = 1;
+                c.strokeStyle = '#2dd4bf'; // Teal-400
+                c.beginPath();
+
+                const step = Math.ceil(buffer.length / canvas.width);
+                const ampHeight = canvas.height / 2;
+
+                for(let i = 0; i < canvas.width; i++) {
+                    let min = 1.0;
+                    let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = buffer[i * step + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    // 波形ブロックを描画
+                    c.moveTo(i, (1 + min) * ampHeight);
+                    c.lineTo(i, (1 + max) * ampHeight);
+                }
+                c.stroke();
+            },
+
+            drawGridOnly: function() {
+                const canvas = document.getElementById('visualizer');
+                const c = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+                c.fillStyle = '#000';
+                c.fillRect(0, 0, canvas.width, canvas.height);
+                c.lineWidth=1; c.strokeStyle='rgba(30,41,59,0.5)'; c.beginPath(); c.moveTo(0,canvas.height/2); c.lineTo(canvas.width,canvas.height/2); c.stroke();
+            },
+
+            visualize: function() {
+                const canvas = document.getElementById('visualizer');
+                const c = canvas.getContext('2d');
+                const bufferLength = this.analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const draw = () => {
+                    this.animId = requestAnimationFrame(draw);
+                    this.analyzer.getByteTimeDomainData(dataArray);
+                    c.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                    c.fillRect(0, 0, canvas.width, canvas.height);
+                    c.lineWidth=1; c.strokeStyle='rgba(30,41,59,0.5)'; c.beginPath(); c.moveTo(0,canvas.height/2); c.lineTo(canvas.width,canvas.height/2); c.stroke();
+
+                    c.lineWidth = 2; c.strokeStyle = '#14b8a6'; c.shadowBlur = 8; c.shadowColor = '#14b8a6';
+                    c.beginPath();
+                    const sliceWidth = canvas.width / bufferLength; let x = 0; let maxAmp = 0;
+                    for(let i = 0; i < bufferLength; i++) {
+                        const v = dataArray[i] / 128.0; const y = v * canvas.height / 2;
+                        const amp = Math.abs(dataArray[i] - 128); if(amp > maxAmp) maxAmp = amp;
+                        if(i===0) c.moveTo(x, y); else c.lineTo(x, y); x += sliceWidth;
+                    }
+                    c.lineTo(canvas.width, canvas.height/2); c.stroke();
+                    if(maxAmp>0) { const db=(20*Math.log10(maxAmp/128)).toFixed(1); document.getElementById('gain-val').innerText=db>-100?db+" dB":"-INF"; }
+                };
+                draw();
+            },
+
+            draw3LayerRadar: function() {
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                Chart.defaults.color = '#64748b'; Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+                if(this.chart) this.chart.destroy();
+                this.chart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['木 (WOOD)', '火 (FIRE)', '土 (EARTH)', '金 (METAL)', '水 (WATER)'],
+                        datasets: [
+                            { label: '算命学 (IDEAL)', data: [80, 80, 100, 80, 80], borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', borderWidth: 2, pointRadius: 0 },
+                            { label: 'カタカムナ (NAME)', data: this.nameData, borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.0)', borderWidth: 2, borderDash: [5, 5], pointRadius: 3 },
+                            { label: '生体音声 (VOICE)', data: this.recordedData, borderColor: '#d946ef', backgroundColor: 'rgba(217, 70, 239, 0.2)', borderWidth: 2, pointBackgroundColor: '#d946ef' }
+                        ]
+                    },
+                    options: {
+                        scales: { r: { angleLines: { color: 'rgba(255,255,255,0.05)' }, grid: { color: 'rgba(255,255,255,0.05)' }, pointLabels: { font: { size: 11 }, color: '#94a3b8' }, min: 0, max: 100, ticks: { display: false } } },
+                        plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 10 } }, position: 'bottom' } }, maintainAspectRatio: false
+                    }
+                });
+            },
+
+            downloadWav: function() {
+                if(!this.finalAudioBuffer) this.generateResonanceBuffer();
+                const buffer = this.finalAudioBuffer;
+                const wavBytes = this.encodeWAV(buffer, 44100);
                 const blob = new Blob([wavBytes], { type: 'audio/wav' });
                 const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `AstroResonance_${freq}Hz.wav`;
-                a.click();
+                const a = document.createElement('a'); a.href = url; a.download = `AstroResonance_${this.elements.guard.freq}Hz.wav`; a.click();
             },
 
             encodeWAV: function(samples, sampleRate) {
                 const buffer = new ArrayBuffer(44 + samples.length * 2);
                 const view = new DataView(buffer);
-                const writeString = (view, offset, string) => {
-                    for (let i = 0; i < string.length; i++) {
-                        view.setUint8(offset + i, string.charCodeAt(i));
-                    }
-                };
-
-                writeString(view, 0, 'RIFF');
-                view.setUint32(4, 36 + samples.length * 2, true);
-                writeString(view, 8, 'WAVE');
-                writeString(view, 12, 'fmt ');
-                view.setUint32(16, 16, true);
-                view.setUint16(20, 1, true);
-                view.setUint16(22, 1, true);
-                view.setUint32(24, sampleRate, true);
-                view.setUint32(28, sampleRate * 2, true);
-                view.setUint16(32, 2, true);
-                view.setUint16(34, 16, true);
-                writeString(view, 36, 'data');
-                view.setUint32(40, samples.length * 2, true);
-
+                const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+                writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + samples.length * 2, true);
+                writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+                view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+                writeString(view, 36, 'data'); view.setUint32(40, samples.length * 2, true);
                 let offset = 44;
                 for (let i = 0; i < samples.length; i++) {
                     const s = Math.max(-1, Math.min(1, samples[i]));
-                    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-                    offset += 2;
+                    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true); offset += 2;
                 }
                 return view;
             },
 
             showStep: function(id) {
                 const el = document.getElementById(id);
-                el.classList.remove('hidden');
-                el.classList.add('anim-entry');
+                el.classList.remove('hidden'); el.classList.add('anim-entry');
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         };
