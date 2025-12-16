@@ -186,6 +186,15 @@
                     FFT解析により、あなたの現在の状態（Voice）と、理想（Target）の差異を検出します。
                 </div>
 
+                <div class="mb-6 glass-panel p-4 rounded-xl border border-teal-500/30 bg-slate-900/50">
+                    <label class="block text-xs font-bold tracking-wider text-teal-400 mb-2">🎵 AUDIO DURATION (seconds)</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" id="inp-duration" value="10" min="1" max="300" step="1"
+                            class="w-24 bg-slate-950/80 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 font-mono text-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all">
+                        <span class="text-sm text-slate-400">生成する音声の長さを指定（1〜300秒）</span>
+                    </div>
+                </div>
+
                 <div class="flex gap-4">
                     <button id="btn-rec" onclick="app.startMic()" 
                         class="flex-1 py-4 rounded-xl bg-slate-800 border border-fuchsia-500/30 text-fuchsia-300 font-bold hover:bg-fuchsia-500 hover:text-white transition-all">
@@ -214,7 +223,7 @@
                 <div class="mb-10">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="h-2 w-2 rounded-full bg-teal-500"></span>
-                        <h4 class="text-xs font-bold text-teal-400 tracking-widest">GENERATED RESONANCE WAVEFORM (10s)</h4>
+                        <h4 class="text-xs font-bold text-teal-400 tracking-widest">GENERATED RESONANCE WAVEFORM <span id="duration-display">(10s)</span></h4>
                     </div>
                     <div class="final-wave-container h-24 w-full relative overflow-hidden">
                         <canvas id="finalWaveVisualizer" class="w-full h-full"></canvas>
@@ -436,6 +445,8 @@
                     
                     // 音声データを生成・保存・描画
                     this.generateResonanceBuffer();
+                    // 期間表示を更新
+                    document.getElementById('duration-display').textContent = `(${this.audioDuration}s)`;
                     this.showStep('step4');
                     this.draw3LayerRadar();
                     this.drawFinalWaveform(); // ★最終波形を描画
@@ -444,23 +455,27 @@
             },
 
             // ★追加: 最終的な音声データを生成する関数
-            generateResonanceBuffer: function() {
+            generateResonanceBuffer: function(customDuration) {
                 const sampleRate = 44100;
-                const duration = 10; 
+                const duration = customDuration || parseInt(document.getElementById('inp-duration').value) || 10;
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
                 const freq = this.elements.guard.freq;
 
+                // フェード時間を長さに応じて調整（最大2秒）
+                const fadeTime = Math.min(2, duration * 0.2);
+
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
                     let envelope = 1;
-                    if (t < 2) envelope = t / 2; // 2秒フェードイン
-                    if (t > duration - 2) envelope = (duration - t) / 2; // 2秒フェードアウト
+                    if (t < fadeTime) envelope = t / fadeTime; // フェードイン
+                    if (t > duration - fadeTime) envelope = (duration - t) / fadeTime; // フェードアウト
                     
                     // サイン波 + 微妙なモジュレーション（ゆらぎ）
                     buffer[i] = Math.sin(2 * Math.PI * freq * t) * 0.5 * envelope;
                 }
                 this.finalAudioBuffer = buffer; // メモリに保存
+                this.audioDuration = duration; // 長さを保存
             },
 
             // ★追加: 最終波形を描画する関数
@@ -558,10 +573,14 @@
             downloadWav: function() {
                 if(!this.finalAudioBuffer) this.generateResonanceBuffer();
                 const buffer = this.finalAudioBuffer;
+                const duration = this.audioDuration || 10;
                 const wavBytes = this.encodeWAV(buffer, 44100);
                 const blob = new Blob([wavBytes], { type: 'audio/wav' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = `AstroResonance_${this.elements.guard.freq}Hz.wav`; a.click();
+                const a = document.createElement('a'); 
+                a.href = url; 
+                a.download = `AstroResonance_${this.elements.guard.freq}Hz_${duration}sec.wav`; 
+                a.click();
             },
 
             encodeWAV: function(samples, sampleRate) {
