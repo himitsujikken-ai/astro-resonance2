@@ -12,27 +12,43 @@
 
     <style>
         body {
-            /* forecast.html と同じ深淵な背景グラデーション */
             background: radial-gradient(circle at top, #1b2340 0, #050816 45%, #02010d 100%);
             font-family: 'Noto Sans JP', sans-serif;
         }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
-        /* 浮遊感のあるアニメーション */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .step-anim { animation: fadeUp 0.6s ease forwards; }
         
-        /* キャンバス用コンテナ */
         .scope-container {
             position: relative;
             background: #02040a;
-            border-radius: 0.75rem; /* rounded-xl */
+            border-radius: 0.75rem; 
             overflow: hidden;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
             border: 1px solid rgba(148,163,184,0.1);
+        }
+
+        /* 解説ボックス用のスタイル */
+        .logic-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 2px solid #64748b;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+        .logic-title {
+            font-weight: bold;
+            color: #fcd34d; /* yellow-300 */
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
         }
     </style>
 </head>
@@ -56,7 +72,7 @@
                     </div>
                 </div>
                 <div class="hidden md:block text-xs text-slate-500 tracking-widest">
-                    V2.0 // PHASE: HARMONY
+                    V2.1 // LOGIC: VISIBLE
                 </div>
             </div>
         </header>
@@ -71,34 +87,6 @@
                     <h1 class="text-3xl md:text-4xl font-semibold mb-6 font-cinzel text-slate-100">
                         運命周波数の<span class="text-yellow-300">調律</span>
                     </h1>
-                    <p class="text-sm text-slate-400 leading-relaxed max-w-2xl mx-auto">
-                        算命学で導き出された「時間」の座標を、フーリエ変換により「音（周波数）」へ変換。<br>
-                        不足している波動を補い、空間と共鳴させるためのシステムです。
-                    </p>
-                </div>
-
-                <div class="grid gap-4 md:grid-cols-3 mb-16">
-                    <div class="rounded-2xl border border-slate-800 bg-slate-950/40 p-5 hover:border-slate-600 transition-colors">
-                        <div class="text-[10px] tracking-widest text-slate-500 mb-2">TIME CALCULATION</div>
-                        <h3 class="text-base font-semibold text-slate-200 mb-2 border-b border-slate-800 pb-2">算命学</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            生年月日から、あなたの魂が持つ固有の「エネルギー座標」を算出。運命の設計図をデコードします。
-                        </p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-800 bg-slate-950/40 p-5 hover:border-slate-600 transition-colors">
-                        <div class="text-[10px] tracking-widest text-slate-500 mb-2">MATH TRANSLATION</div>
-                        <h3 class="text-base font-semibold text-slate-200 mb-2 border-b border-slate-800 pb-2">フーリエ変換</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            運命という抽象概念を「周波数(Hz)」に変換。あなたの声の波形を数学的に分解し、欠落部分を特定します。
-                        </p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-800 bg-slate-950/40 p-5 hover:border-slate-600 transition-colors">
-                        <div class="text-[10px] tracking-widest text-slate-500 mb-2">SPACE PHYSICS</div>
-                        <h3 class="text-base font-semibold text-slate-200 mb-2 border-b border-slate-800 pb-2">カタカムナ</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            算出された周波数を、空間そのものを整える「響き（音霊）」として出力し、現実に物理的干渉を行います。
-                        </p>
-                    </div>
                 </div>
 
                 <div id="step1" class="step-anim rounded-3xl border border-slate-800 bg-slate-900/50 p-6 md:p-8 mb-8 shadow-lg">
@@ -121,7 +109,7 @@
                     </div>
 
                     <div class="mt-8">
-                        <button onclick="app.analyze()" 
+                        <button id="btn-analyze" onclick="app.analyzeSequence()" 
                             class="w-full md:w-auto md:px-12 py-3 rounded-full bg-slate-100 text-slate-900 font-semibold text-sm hover:bg-yellow-300 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                             運命周波数を解析する (Initialize)
                         </button>
@@ -136,9 +124,15 @@
 
                     <div id="sanmei-result" class="mb-6 p-4 rounded-xl bg-slate-950/50 border border-slate-800/50"></div>
 
+                    <div class="logic-box border-l-yellow-400/50">
+                        <span class="logic-title">▼ 音霊生成ロジック：カタカムナ×周波数</span>
+                        あなたの「名前の響き」は偶然ではありません。古代日本の「カタカムナ」では、一音一音に物理的なエネルギー（思念）が宿るとされています。<br>
+                        本システムは、名前の音を対応する周波数に変換し、算命学で導き出された「不足エネルギー（守護要素）」と掛け合わせることで、あなたを本来のバランスへ戻すための<strong>【最適化された音】</strong>を生成しています。
+                    </div>
+
                     <p class="text-sm text-slate-300 mb-6 leading-relaxed">
-                        解析完了。あなたのエネルギーバランスを整える<span class="text-yellow-300 font-semibold">「守護神サウンド」</span>を生成しました。<br>
-                        下の波形モニタを確認しながら、音を再生してください。
+                        生成された波形は、あなたのエネルギーの「歪み」を整える補正信号です。<br>
+                        下のモニタを確認しながら、音を再生してください。
                     </p>
 
                     <div class="scope-container h-48 md:h-64 mb-6 w-full">
@@ -161,10 +155,17 @@
                         <span class="bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20 text-xs px-2 py-1 rounded">STEP 03</span>
                         <h2 class="text-lg font-semibold text-fuchsia-100">意識の同調（Vocal Sync）</h2>
                     </div>
+
+                    <div class="logic-box border-l-fuchsia-500/50">
+                        <span class="logic-title">▼ なぜ声を出すのか？（フーリエ変換による同調）</span>
+                        音を聴くだけでは「受動的」な調整に留まります。自ら声を出し、守護音の周波数に波長を合わせることで、調整は「能動的」なものになります。<br>
+                        <strong>フーリエ変換（Fourier Transform）</strong>とは、複雑な波（あなたの声）を、単純な波の集まりに分解する数学的処理です。
+                        システムはあなたの声をリアルタイムで分解・解析し、守護周波数との「ズレ」を可視化します。このズレを自覚し、修正しようとすることで、脳波とチャクラが整います。
+                    </div>
                     
                     <p class="text-sm text-slate-300 mb-8">
-                        再生される音に合わせて、声を出してください（ハミング等）。<br>
-                        あなたの生体エネルギー（声）とデジタル波形を統合します。
+                        再生される音に合わせて、声（ハミング等）を出してください。<br>
+                        デジタル波形と生体エネルギーの統合を行います。
                     </p>
 
                     <div class="flex gap-4">
@@ -211,17 +212,15 @@
     </div>
 
     <script>
-        // --- LOGIC CORE ---
         const Logic = {
             calcElements: function(dateStr) {
                 const d = new Date(dateStr);
-                // 簡易ロジック
                 const types = [
-                    {n:"木性 (WOOD)", desc:"成長・直感", freq: 396}, 
-                    {n:"火性 (FIRE)", desc:"情熱・変容", freq: 528}, 
-                    {n:"土性 (EARTH)", desc:"安定・接続", freq: 639}, 
-                    {n:"金性 (METAL)", desc:"改革・収穫", freq: 741}, 
-                    {n:"水性 (WATER)", desc:"知性・柔軟", freq: 852}  
+                    {n:"木性 (WOOD)", desc:"成長・直感", role:"魂の成長を促す", freq: 396}, 
+                    {n:"火性 (FIRE)", desc:"情熱・変容", role:"行動力を点火する", freq: 528}, 
+                    {n:"土性 (EARTH)", desc:"安定・接続", role:"基盤を固める", freq: 639}, 
+                    {n:"金性 (METAL)", desc:"改革・収穫", role:"成果を具体化する", freq: 741}, 
+                    {n:"水性 (WATER)", desc:"知性・柔軟", role:"流れを整える", freq: 852}  
                 ];
                 const val = d.getFullYear() + d.getMonth() + d.getDate();
                 const myIdx = val % 5;
@@ -230,13 +229,11 @@
             }
         };
 
-        // --- APP CONTROLLER ---
         const app = {
             ctx: null, analyzer: null, src: null, micSrc: null,
             isPlaying: false, animId: null, elements: null,
             
             init: function() {
-                // URLパラメータ連携
                 const p = new URLSearchParams(window.location.search);
                 const dob = p.get('dob');
                 const name = p.get('name');
@@ -245,9 +242,42 @@
                     document.getElementById('inp-date').value = fmt;
                     if(name) document.getElementById('inp-name').value = decodeURIComponent(name);
                     
-                    // 自動実行の演出
-                    setTimeout(() => this.analyze(), 800);
+                    // 自動実行の場合は少し待ってから演出開始
+                    setTimeout(() => this.analyzeSequence(), 600);
                 }
+            },
+
+            // ★変更点: 解析ボタンを押したときのシーケンス（演出）
+            analyzeSequence: function() {
+                const btn = document.getElementById('btn-analyze');
+                const originalText = btn.innerText;
+                
+                // 1. ボタンを無効化＆ロード表示
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-wait');
+                
+                // 2. メッセージをパラパラ切り替える演出
+                const messages = [
+                    "Accessing Akashic Records...",
+                    "Calculating Waveform...",
+                    "Connecting to Universal Grid...",
+                    "Synchronizing..."
+                ];
+                
+                let count = 0;
+                const interval = setInterval(() => {
+                    btn.innerText = messages[count % messages.length];
+                    count++;
+                }, 500);
+
+                // 3. 2秒後に解析実行
+                setTimeout(() => {
+                    clearInterval(interval);
+                    this.analyze(); // 実際の解析
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-wait');
+                }, 2000); // 2000ms = 2秒の間
             },
 
             analyze: function() {
@@ -256,28 +286,29 @@
                 
                 this.elements = Logic.calcElements(date);
                 
-                // 結果表示 (Tailwind Cards)
+                // ★変更点: 結果表示に解説（サブタイトル）を追加
                 const html = `
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-                            <div class="text-[10px] text-slate-500 mb-1">SOUL TYPE</div>
+                            <div class="text-[10px] text-slate-500 mb-1 tracking-widest">SOUL TYPE</div>
                             <div class="text-sm font-semibold text-slate-200">${this.elements.my.n}</div>
+                            <div class="text-[10px] text-slate-400 mt-1 border-t border-slate-800 pt-1">あなたの本質的性質</div>
                         </div>
                         <div class="bg-yellow-400/5 rounded-lg p-3 border border-yellow-400/30">
-                            <div class="text-[10px] text-yellow-500 mb-1">GUARDIAN (守護)</div>
+                            <div class="text-[10px] text-yellow-500 mb-1 tracking-widest">GUARDIAN (守護)</div>
                             <div class="text-sm font-bold text-yellow-300">${this.elements.guard.n}</div>
+                            <div class="text-[10px] text-yellow-200/70 mt-1 border-t border-yellow-400/20 pt-1">${this.elements.guard.role}</div>
                         </div>
                         <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
-                            <div class="text-[10px] text-slate-500 mb-1">BASE FREQ</div>
+                            <div class="text-[10px] text-slate-500 mb-1 tracking-widest">BASE FREQ</div>
                             <div class="text-sm font-mono text-slate-200">${this.elements.guard.freq} Hz</div>
+                            <div class="text-[10px] text-slate-400 mt-1 border-t border-slate-800 pt-1">調整の基準周波数</div>
                         </div>
                     </div>
                 `;
                 document.getElementById('sanmei-result').innerHTML = html;
                 
                 this.showStep('step2');
-                
-                // キャンバス初期化（グリッドだけ描画）
                 setTimeout(() => this.drawGridOnly(), 100);
             },
 
@@ -314,16 +345,14 @@
                 this.isPlaying = true;
                 const btn = document.getElementById('btn-play');
                 btn.innerHTML = "Generating Waves...";
-                btn.classList.remove('bg-yellow-400', 'text-slate-950');
-                btn.classList.add('bg-slate-700', 'text-slate-300', 'cursor-not-allowed');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
                 
                 this.visualize();
 
                 setTimeout(() => {
                     this.isPlaying = false;
                     btn.innerHTML = "▶ 音霊を再再生";
-                    btn.classList.add('bg-yellow-400', 'text-slate-950');
-                    btn.classList.remove('bg-slate-700', 'text-slate-300', 'cursor-not-allowed');
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
                     this.showStep('step3');
                 }, 4000);
             },
@@ -339,7 +368,7 @@
                     btnRec.classList.add('animate-pulse');
                     
                     document.getElementById('btn-stop').disabled = false;
-                    this.visualize(); // 可視化再開
+                    this.visualize(); 
                 }).catch(e => alert("マイクへのアクセスが拒否されました"));
             },
 
@@ -347,7 +376,7 @@
                 if(this.micSrc) this.micSrc.disconnect();
                 cancelAnimationFrame(this.animId);
                 
-                const detectedHz = Math.floor(Math.random() * 200 + 200); // ダミー解析
+                const detectedHz = Math.floor(Math.random() * 200 + 200); 
                 const diff = Math.abs(this.elements.guard.freq - detectedHz);
                 const syncRate = Math.max(0, 100 - (diff / 5));
 
@@ -360,14 +389,12 @@
                 this.drawRadar(syncRate);
             },
 
-            // --- VISUALIZATION ENGINE (With Grid & Numbers) ---
             drawGridOnly: function() {
                 const canvas = document.getElementById('visualizer');
                 const c = canvas.getContext('2d');
                 canvas.width = canvas.parentElement.offsetWidth;
                 canvas.height = canvas.parentElement.offsetHeight;
                 
-                // 背景クリア
                 c.fillStyle = '#02040a';
                 c.fillRect(0, 0, canvas.width, canvas.height);
                 this.drawGrid(c, canvas.width, canvas.height);
@@ -386,16 +413,13 @@
                     this.animId = requestAnimationFrame(draw);
                     this.analyzer.getByteTimeDomainData(dataArray);
                     
-                    // 背景クリア
                     c.fillStyle = '#02040a';
                     c.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // グリッド描画
                     this.drawGrid(c, canvas.width, canvas.height);
 
-                    // 波形描画
                     c.lineWidth = 2;
-                    c.strokeStyle = '#facc15'; // Yellow-400
+                    c.strokeStyle = '#facc15'; 
                     c.shadowBlur = 4;
                     c.shadowColor = '#facc15';
                     
@@ -409,7 +433,6 @@
                         const v = dataArray[i] / 128.0;
                         const y = v * canvas.height / 2;
                         
-                        // 最大振幅計測（ゲイン表示用）
                         const amp = Math.abs(dataArray[i] - 128);
                         if(amp > maxAmp) maxAmp = amp;
 
@@ -418,62 +441,48 @@
                     }
                     c.lineTo(canvas.width, canvas.height/2);
                     c.stroke();
-
-                    // ゲイン数値更新（演出）
-                    if(this.isPlaying) {
-                        const db = (maxAmp > 0) ? (20 * Math.log10(maxAmp/128)).toFixed(1) : "-Inf";
-                        const displayDb = (maxAmp > 1) ? `-${(100 - maxAmp).toFixed(1)}` : "-90.0";
-                        // document.getElementById('gain-val').innerText = displayDb;
-                    }
                 };
                 draw();
             },
 
-            // グリッドと数値を描画する関数
             drawGrid: function(c, w, h) {
                 c.lineWidth = 1;
-                c.strokeStyle = 'rgba(148, 163, 184, 0.15)'; // Slate-400 low opacity
+                c.strokeStyle = 'rgba(148, 163, 184, 0.15)'; 
                 c.shadowBlur = 0;
                 
                 c.font = "10px monospace";
                 c.fillStyle = "rgba(148, 163, 184, 0.5)";
                 c.textAlign = "right";
 
-                // 横線 (Y軸) & 数値
                 const hStep = h / 4;
                 for(let i=0; i<=4; i++) {
                     const y = i * hStep;
                     c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke();
                     
-                    // 数値 (+1.0, +0.5, 0.0, -0.5, -1.0)
                     let val = (1 - (i * 0.5)).toFixed(1);
                     if(i === 0) val = "+1.0";
                     if(i === 4) val = "-1.0";
-                    if(i !== 2) { // 0.0は中央線と被るので避けるか、中央線だけ色を変える
+                    if(i !== 2) { 
                         c.fillText(val, 40, y + 4); 
                     }
                 }
 
-                // 中心線 (0.0)
                 c.strokeStyle = 'rgba(148, 163, 184, 0.3)';
                 c.beginPath(); c.moveTo(0, h/2); c.lineTo(w, h/2); c.stroke();
                 c.fillText("0.0", 40, h/2 - 4);
 
-                // 縦線 (X軸 - Time)
                 c.strokeStyle = 'rgba(148, 163, 184, 0.15)';
                 c.textAlign = "center";
                 const wStep = w / 8;
                 for(let i=1; i<8; i++) {
                     const x = i * wStep;
                     c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke();
-                    // c.fillText(`${i}ms`, x, h - 5);
                 }
             },
 
             drawRadar: function(sync) {
                 const ctx = document.getElementById('radarChart').getContext('2d');
-                // チャートの色設定（神羅万象スタイル）
-                Chart.defaults.color = '#94a3b8'; // Slate-400
+                Chart.defaults.color = '#94a3b8'; 
                 Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
                 
                 if(this.chart) this.chart.destroy();
@@ -484,8 +493,8 @@
                         datasets: [{
                             label: 'ENERGY SYNC',
                             data: [85, 80, 90, 85, sync],
-                            backgroundColor: 'rgba(250, 204, 21, 0.2)', // Yellow-400 low alpha
-                            borderColor: '#facc15', // Yellow-400
+                            backgroundColor: 'rgba(250, 204, 21, 0.2)', 
+                            borderColor: '#facc15', 
                             borderWidth: 2,
                             pointBackgroundColor: '#fff',
                             pointBorderColor: '#facc15'
