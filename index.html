@@ -306,6 +306,89 @@
                 </div>
             </div>
 
+            <!-- STEP 5: アラーム音生成 -->
+            <div id="step5" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-purple-500/50">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-8 w-8 rounded bg-purple-500/10 text-purple-500 flex items-center justify-center font-mono text-sm border border-purple-500/20">🔔</div>
+                    <h2 class="text-xl font-bold text-purple-100">アラーム音生成</h2>
+                </div>
+
+                <div class="text-center mb-8">
+                    <p class="text-sm text-slate-300 mb-6 leading-relaxed">
+                        生成されたオリジナル周波数オーディオファイルを元に<br>
+                        <span class="text-purple-300 font-bold">穏やかな目覚めを促すアラーム音</span>を作れます。
+                    </p>
+                    <p class="text-lg text-white font-bold mb-6">作りますか？</p>
+                    
+                    <div class="flex justify-center gap-6">
+                        <button onclick="app.generateAlarms()" 
+                            class="px-16 py-4 rounded-full bg-purple-500 text-white font-bold text-lg tracking-widest hover:bg-purple-400 hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all transform hover:-translate-y-1">
+                            YES
+                        </button>
+                        <button onclick="document.getElementById('step5').classList.add('hidden')" 
+                            class="px-16 py-4 rounded-full bg-slate-700 text-slate-300 font-bold text-lg tracking-widest hover:bg-slate-600 transition-all">
+                            NO
+                        </button>
+                    </div>
+                </div>
+
+                <!-- アラーム生成中表示 -->
+                <div id="alarm-generating" class="hidden text-center py-12">
+                    <div class="inline-block mb-6">
+                        <svg class="animate-spin h-16 w-16 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-lg font-mono text-purple-300 mb-4">GENERATING ALARM SOUNDS...</div>
+                    <div class="text-xs text-slate-500">2パターンのアラーム音を生成中</div>
+                </div>
+
+                <!-- アラーム完成表示 -->
+                <div id="alarm-ready" class="hidden">
+                    <div class="text-center mb-8">
+                        <div class="inline-block px-4 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold tracking-widest mb-4">
+                            ALARM READY
+                        </div>
+                        <h3 class="text-xl font-bold text-purple-100 mb-4">2パターンのアラーム音が完成しました</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- パターン1 -->
+                        <div class="glass-panel p-6 rounded-xl border border-purple-500/30">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-2xl">😌</span>
+                                <h4 class="text-lg font-bold text-purple-200">Pattern 1</h4>
+                            </div>
+                            <h5 class="text-sm font-bold text-white mb-3">静かな呼吸に同調する目覚め</h5>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                無音に近いレベルから15〜25秒でゆっくりフェードイン。丸みのある倍音で、わずかに揺らぐ音量・音程変化。「起こす」のではなく「気づいたら目が覚めている」状態を目指します。
+                            </p>
+                            <button onclick="app.downloadAlarm(1)" 
+                                class="w-full py-3 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 font-bold hover:bg-purple-500 hover:text-white transition-all">
+                                ↓ DOWNLOAD ALARM 1
+                            </button>
+                        </div>
+
+                        <!-- パターン2 -->
+                        <div class="glass-panel p-6 rounded-xl border border-purple-500/30">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-2xl">🌅</span>
+                                <h4 class="text-lg font-bold text-purple-200">Pattern 2</h4>
+                            </div>
+                            <h5 class="text-sm font-bold text-white mb-3">朝の光がカーテン越しに差し込む瞬間</h5>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                20秒以上かけて緩やかにフェードイン。中高域に優しい倍音が徐々に加わり、明るさは増すが刺激にはならないバランス。「空間が明るくなる感覚」を音で表現します。
+                            </p>
+                            <button onclick="app.downloadAlarm(2)" 
+                                class="w-full py-3 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 font-bold hover:bg-purple-500 hover:text-white transition-all">
+                                ↓ DOWNLOAD ALARM 2
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
         
         <footer class="border-t border-slate-800/80 bg-slate-950/60 py-8 text-center">
@@ -374,6 +457,8 @@
             finalAudioBuffer: null, // 生成された音声データを保持
             audioSamples: [], // FFT分析用の音声サンプル
             recordingStartTime: null,
+            alarmPattern1: null, // アラームパターン1
+            alarmPattern2: null, // アラームパターン2
             
             init: function() {
                 console.log('🟡 App initialized');
@@ -991,6 +1076,11 @@
                 a.href = url; 
                 a.download = `AstroResonance_${this.elements.guard.freq}Hz+7.83Hz_${duration}sec.wav`; 
                 a.click();
+                
+                // ダウンロード後にSTEP5を表示
+                setTimeout(() => {
+                    this.showStep('step5');
+                }, 1000);
             },
 
             encodeWAV: function(samples, sampleRate) {
@@ -1009,6 +1099,144 @@
                     view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true); offset += 2;
                 }
                 return view;
+            },
+
+            // ★ アラーム音生成関数
+            generateAlarms: function() {
+                console.log('🔔 Generating alarm sounds...');
+                
+                // 生成中表示
+                document.getElementById('alarm-generating').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    // パターン1とパターン2を生成
+                    this.alarmPattern1 = this.generateAlarmPattern1();
+                    this.alarmPattern2 = this.generateAlarmPattern2();
+                    
+                    // 完成表示
+                    document.getElementById('alarm-generating').classList.add('hidden');
+                    document.getElementById('alarm-ready').classList.remove('hidden');
+                    
+                    console.log('✅ Alarm sounds generated');
+                }, 2000);
+            },
+
+            generateAlarmPattern1: function() {
+                // パターン1: 静かな呼吸に同調する目覚め
+                // 15〜25秒フェードイン、揺らぎあり
+                const sampleRate = 44100;
+                const duration = 30; // 30秒
+                const samples = sampleRate * duration;
+                const buffer = new Float32Array(samples);
+                
+                const guardFreq = this.elements.guard.freq;
+                const schumannFreq = 7.83;
+                const fadeInTime = 20; // 20秒でフェードイン
+                
+                for (let i = 0; i < samples; i++) {
+                    const t = i / sampleRate;
+                    
+                    // 非常に緩やかなフェードイン（指数関数的）
+                    let envelope = 0;
+                    if (t < fadeInTime) {
+                        envelope = Math.pow(t / fadeInTime, 2.5) * 0.001; // 非常に小さく開始
+                        envelope = Math.min(envelope, 0.3); // 最大音量を抑える
+                    } else {
+                        envelope = 0.3;
+                    }
+                    
+                    // 揺らぎを追加（LFO - Low Frequency Oscillator）
+                    const vibrato = Math.sin(2 * Math.PI * 0.05 * t) * 0.002; // 音程の揺らぎ
+                    const tremolo = Math.sin(2 * Math.PI * 0.08 * t) * 0.1 + 1; // 音量の揺らぎ
+                    
+                    // 基音（守護周波数）- 丸みのある倍音構成
+                    const fundamental = Math.sin(2 * Math.PI * (guardFreq + vibrato * guardFreq) * t);
+                    const harmonic2 = Math.sin(2 * Math.PI * (guardFreq * 2) * t) * 0.3; // 2倍音
+                    const harmonic3 = Math.sin(2 * Math.PI * (guardFreq * 3) * t) * 0.15; // 3倍音（控えめ）
+                    
+                    // シューマン共鳴
+                    const schumann = Math.sin(2 * Math.PI * schumannFreq * t) * 0.2;
+                    
+                    // 合成
+                    buffer[i] = (fundamental * 0.5 + harmonic2 + harmonic3 + schumann) * envelope * tremolo;
+                }
+                
+                console.log('🔔 Pattern 1 generated: Gentle Breathing');
+                return buffer;
+            },
+
+            generateAlarmPattern2: function() {
+                // パターン2: 朝の光がカーテン越しに差し込む瞬間
+                // 20秒以上フェードイン、中高域倍音追加
+                const sampleRate = 44100;
+                const duration = 30; // 30秒
+                const samples = sampleRate * duration;
+                const buffer = new Float32Array(samples);
+                
+                const guardFreq = this.elements.guard.freq;
+                const schumannFreq = 7.83;
+                const fadeInTime = 25; // 25秒でフェードイン
+                
+                for (let i = 0; i < samples; i++) {
+                    const t = i / sampleRate;
+                    
+                    // 非常に緩やかなフェードイン
+                    let envelope = 0;
+                    if (t < fadeInTime) {
+                        envelope = Math.pow(t / fadeInTime, 3) * 0.0005; // さらに小さく開始
+                        envelope = Math.min(envelope, 0.35);
+                    } else {
+                        envelope = 0.35;
+                    }
+                    
+                    // 明るさの進行（中高域倍音の増加）
+                    const brightness = Math.min(t / fadeInTime, 1);
+                    
+                    // 基音
+                    const fundamental = Math.sin(2 * Math.PI * guardFreq * t);
+                    
+                    // 倍音構成（明るさに応じて増加）
+                    const harmonic2 = Math.sin(2 * Math.PI * (guardFreq * 2) * t) * 0.25 * brightness;
+                    const harmonic3 = Math.sin(2 * Math.PI * (guardFreq * 3) * t) * 0.15 * brightness;
+                    const harmonic4 = Math.sin(2 * Math.PI * (guardFreq * 4) * t) * 0.1 * brightness; // 中高域
+                    const harmonic5 = Math.sin(2 * Math.PI * (guardFreq * 5) * t) * 0.05 * brightness; // 高域（控えめ）
+                    
+                    // シューマン共鳴
+                    const schumann = Math.sin(2 * Math.PI * schumannFreq * t) * 0.15;
+                    
+                    // 空間的な広がり（わずかなコーラス効果）
+                    const chorus = Math.sin(2 * Math.PI * (guardFreq * 1.002) * t) * 0.1 * brightness;
+                    
+                    // 合成
+                    buffer[i] = (fundamental * 0.45 + harmonic2 + harmonic3 + harmonic4 + harmonic5 + schumann + chorus) * envelope;
+                }
+                
+                console.log('🌅 Pattern 2 generated: Morning Light');
+                return buffer;
+            },
+
+            downloadAlarm: function(pattern) {
+                let buffer, filename;
+                
+                if (pattern === 1) {
+                    if (!this.alarmPattern1) this.alarmPattern1 = this.generateAlarmPattern1();
+                    buffer = this.alarmPattern1;
+                    filename = `Alarm_GentleBreathing_${this.elements.guard.freq}Hz.wav`;
+                } else {
+                    if (!this.alarmPattern2) this.alarmPattern2 = this.generateAlarmPattern2();
+                    buffer = this.alarmPattern2;
+                    filename = `Alarm_MorningLight_${this.elements.guard.freq}Hz.wav`;
+                }
+                
+                const wavBytes = this.encodeWAV(buffer, 44100);
+                const blob = new Blob([wavBytes], { type: 'audio/wav' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                
+                console.log(`✅ Downloaded: ${filename}`);
             },
 
             showStep: function(id) {
