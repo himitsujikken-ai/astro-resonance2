@@ -2,9 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Astro Resonance | 量子周波数調律システム</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,9 +15,6 @@
             background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 40%, #020617 100%);
             font-family: 'Noto Sans JP', sans-serif;
             color: #e2e8f0;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
         }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
@@ -48,6 +43,7 @@
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
+        /* 最終波形表示用のスタイル */
         .final-wave-container {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid #14b8a6;
@@ -55,6 +51,7 @@
             box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
         }
 
+        /* フローティング録音ウィンドウ */
         #recording-float {
             position: fixed;
             top: 50%;
@@ -84,12 +81,6 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.7; transform: scale(1.05); }
         }
-        
-        /* モバイル用のボタン改善 */
-        button {
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
     </style>
 </head>
 <body class="min-h-screen selection:bg-teal-500/30">
@@ -113,7 +104,7 @@
                 </div>
                 <div class="hidden md:flex items-center gap-4 text-xs font-mono text-slate-500">
                     <span>SYS: ONLINE</span>
-                    <span>VER: 3.3.0</span>
+                    <span>VER: 3.2.0</span>
                 </div>
             </div>
         </header>
@@ -128,8 +119,8 @@
                     運命と音声の<span class="text-teal-400">科学的統合</span>
                 </h1>
                 <p class="text-sm md:text-base text-slate-400 leading-loose max-w-3xl mx-auto">
-                    本システムは、<span class="text-slate-200 font-semibold">「時間(算命学)」「空間(カタカムナ)」「現象(フーリエ解析)」</span>の3つの座標軸を統合する世界初のアルゴリズムです。<br>
-                    あなたの生体エネルギー(声)を数学的に分解し、運命式から導かれる理想波形とのズレを補正する「共鳴音」を生成します。
+                    本システムは、<span class="text-slate-200 font-semibold">「時間（算命学）」「空間（カタカムナ）」「現象（フーリエ解析）」</span>の3つの座標軸を統合する世界初のアルゴリズムです。<br>
+                    あなたの生体エネルギー（声）を数学的に分解し、運命式から導かれる理想波形とのズレを補正する「共鳴音」を生成します。
                 </p>
             </div>
 
@@ -138,7 +129,7 @@
                     <div class="text-xs font-mono text-blue-400 mb-2">TEMPORAL COORDINATE</div>
                     <h3 class="text-lg font-bold text-slate-100 mb-3">算命学 (Time)</h3>
                     <p class="text-xs text-slate-400 leading-relaxed text-justify">
-                        生年月日は単なる記号ではなく、太陽と地球の位置関係が示す「磁場」の記録です。あなたが生まれた瞬間の宇宙のエネルギー配置を座標化し、魂が本来持つべき「基本振動数(Fundamental Frequency)」を算出します。これが調整の目標値となります。
+                        生年月日は単なる記号ではなく、太陽と地球の位置関係が示す「磁場」の記録です。あなたが生まれた瞬間の宇宙のエネルギー配置を座標化し、魂が本来持つべき「基本振動数（Fundamental Frequency）」を算出します。これが調整の目標値となります。
                     </p>
                 </div>
                 <div class="glass-panel p-6 rounded-2xl border-t-2 border-t-emerald-500/50 hover:bg-slate-800/50 transition-colors">
@@ -152,7 +143,7 @@
                     <div class="text-xs font-mono text-purple-400 mb-2">SIGNAL PROCESSING</div>
                     <h3 class="text-lg font-bold text-slate-100 mb-3">フーリエ変換 (Signal)</h3>
                     <p class="text-xs text-slate-400 leading-relaxed text-justify">
-                        高速フーリエ変換(FFT)アルゴリズムを用いて、入力されたあなたの「生声」を周波数スペクトルに分解します。複雑な波形の中から優勢な周波数を特定し、算命学(理想)とカタカムナ(資質)との「誤差」を数学的に計算します。
+                        高速フーリエ変換（FFT）アルゴリズムを用いて、入力されたあなたの「生声」を周波数スペクトルに分解します。複雑な波形の中から優勢な周波数を特定し、算命学（理想）とカタカムナ（資質）との「誤差」を数学的に計算します。
                     </p>
                 </div>
             </div>
@@ -176,175 +167,221 @@
                     </div>
                 </div>
 
-                <button id="btn-calc"
-                    class="mt-8 w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-teal-500/50 active:scale-95">
-                    周波数を計算する
-                </button>
+                <div class="mt-8">
+                    <button onclick="console.log('✅ Button clicked'); app.analyzeSequence()" id="btn-analyze"
+                        class="w-full md:w-auto px-12 py-4 rounded-full bg-slate-100 text-slate-900 font-bold text-sm tracking-widest hover:bg-teal-400 hover:shadow-[0_0_30px_rgba(45,212,191,0.3)] transition-all transform hover:-translate-y-1">
+                        INITIALIZE ANALYSIS
+                    </button>
+                </div>
             </div>
 
-            <div id="step2" class="glass-panel rounded-3xl p-8 mb-10 hidden">
+            <!-- 新規追加: STEP 1.5 波形生成 -->
+            <div id="step1-5" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-cyan-500/50">
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="h-8 w-8 rounded bg-slate-800 text-slate-400 flex items-center justify-center font-mono text-sm border border-slate-700">02</div>
-                    <h2 class="text-xl font-bold text-slate-100">算出された周波数</h2>
+                    <div class="h-8 w-8 rounded bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-mono text-sm border border-cyan-500/20">02</div>
+                    <h2 class="text-xl font-bold text-cyan-100">あなた専用の波形を生成中...</h2>
                 </div>
 
-                <div class="grid gap-6 md:grid-cols-3">
-                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6">
-                        <div class="text-xs font-mono text-blue-400 mb-2">守護周波数</div>
-                        <div id="out-guard" class="text-3xl font-bold text-blue-300 font-mono">---</div>
-                        <div class="text-xs text-slate-500 mt-2">Guardian Frequency</div>
+                <div class="text-center py-12">
+                    <div class="inline-block mb-6">
+                        <svg class="animate-spin h-16 w-16 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </div>
-                    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6">
-                        <div class="text-xs font-mono text-emerald-400 mb-2">カタカムナ周波数</div>
-                        <div id="out-kata" class="text-3xl font-bold text-emerald-300 font-mono">---</div>
-                        <div class="text-xs text-slate-500 mt-2">Katakamuna Frequency</div>
-                    </div>
-                    <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-6">
-                        <div class="text-xs font-mono text-purple-400 mb-2">補正周波数</div>
-                        <div id="out-corr" class="text-3xl font-bold text-purple-300 font-mono">---</div>
-                        <div class="text-xs text-slate-500 mt-2">Correction Frequency</div>
-                    </div>
+                    <div id="gen-status" class="text-lg font-mono text-cyan-300 mb-4">CALCULATING RESONANCE FREQUENCY...</div>
+                    <div class="text-xs text-slate-500">算命学とカタカムナの統合計算を実行中</div>
                 </div>
-
-                <button id="btn-startrec"
-                    class="mt-8 w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-pink-500/50 active:scale-95">
-                    🎤 音声を録音する (3秒)
-                </button>
             </div>
 
-            <div id="recording-float">
-                <div class="text-center">
-                    <div class="mb-6 rec-pulse">
-                        <div class="w-20 h-20 mx-auto rounded-full bg-pink-500/20 border-2 border-pink-500 flex items-center justify-center">
-                            <div class="text-4xl">🎤</div>
+            <div id="step2" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-yellow-500/50">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-8 w-8 rounded bg-yellow-500/10 text-yellow-500 flex items-center justify-center font-mono text-sm border border-yellow-500/20">03</div>
+                    <h2 class="text-xl font-bold text-yellow-100">守護周波数の特定</h2>
+                </div>
+
+                <div id="sanmei-result" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    </div>
+
+                <div class="p-6 bg-slate-950/30 rounded-xl border border-slate-800/50 mb-8">
+                    <h4 class="text-sm font-bold text-yellow-400 mb-2">▼ 生成ロジック解説</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed text-justify">
+                        上記の結果に基づき、あなたのエネルギーフィールドの欠落部分を補完するサイン波（Sine Wave）と、カタカムナの数理に基づく倍音（Harmonics）を合成しました。
+                        さらに、<span class="text-teal-400 font-semibold">地球の電磁場共鳴周波数である7.83Hz（シューマン共鳴）</span>を統合することで、あなたの意識と地球、そして宇宙との調律を促進します。
+                        この音は、単なるリラクゼーション音ではなく、あなたの脳波を「宿命的な最適値」へと誘導するキャリア波（搬送波）として機能します。
+                    </p>
+                </div>
+
+                <div class="scope-screen h-48 w-full rounded-xl mb-6 relative">
+                    <canvas id="visualizer" class="w-full h-full block"></canvas>
+                    <div class="absolute bottom-2 right-4 text-[10px] font-mono text-emerald-500">
+                        GAIN: <span id="gain-val">-INF</span> dB
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="btn-play" onclick="app.playSound()" 
+                        class="px-10 py-3 rounded-full border border-yellow-500/50 text-yellow-400 font-bold text-sm hover:bg-yellow-500 hover:text-slate-900 transition-all tracking-wider shadow-[0_0_20px_rgba(234,179,8,0.1)]">
+                        ▶ AUDIO CHECK
+                    </button>
+                </div>
+            </div>
+
+            <div id="step3" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-fuchsia-500/50">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="h-8 w-8 rounded bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center font-mono text-sm border border-fuchsia-500/20">04</div>
+                    <h2 class="text-xl font-bold text-fuchsia-100">生体エネルギー統合 (Rec)</h2>
+                </div>
+
+                <div class="mb-8 text-sm text-slate-300 leading-relaxed">
+                    再生される音に合わせ、<span class="text-fuchsia-300 font-bold">5秒間</span> 声を出してください。<br>
+                    <span class="text-xs text-slate-400">
+                    あなたの声をリアルタイムでFFT（高速フーリエ変換）により周波数スペクトルに分解し、
+                    五行（木火土金水）の各周波数帯域のエネルギー分布を解析します。
+                    守護周波数との同期率も算出されます。
+                    </span>
+                </div>
+
+                <div class="mb-6 glass-panel p-4 rounded-xl border border-teal-500/30 bg-slate-900/50">
+                    <label class="block text-xs font-bold tracking-wider text-teal-400 mb-2">🎵 GENERATED AUDIO DURATION</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" id="inp-duration" value="10" min="1" max="300" step="1"
+                            class="w-24 bg-slate-950/80 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 font-mono text-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all">
+                        <span class="text-sm text-slate-400">生成する音声の長さ（1〜300秒）</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button id="btn-rec" onclick="app.startMic()" 
+                        class="flex-1 py-4 rounded-xl bg-slate-800 border border-fuchsia-500/30 text-fuchsia-300 font-bold hover:bg-fuchsia-500 hover:text-white transition-all">
+                        ● START RECORDING
+                    </button>
+                    <button id="btn-stop" onclick="app.stopMic()" disabled
+                        class="flex-1 py-4 rounded-xl bg-slate-900 text-slate-600 font-bold disabled:cursor-not-allowed enabled:bg-slate-100 enabled:text-slate-900 transition-all">
+                        ■ MERGE DATA
+                    </button>
+                </div>
+                <div id="rec-status" class="mt-4 text-xs text-slate-500 font-mono text-center h-4"></div>
+            </div>
+
+            <div id="step4" class="hidden glass-panel rounded-3xl p-8 mb-10 border-t-2 border-t-teal-500/50">
+                <div class="text-center mb-8">
+                    <div class="inline-block px-4 py-1 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 text-xs font-bold tracking-widest mb-4 animate-pulse">
+                        SYNC COMPLETE
+                    </div>
+                    <h3 class="text-2xl font-cinzel text-slate-100 mb-2">多次元統合完了</h3>
+                    <div id="voice-comment" class="text-sm text-slate-400"></div>
+                </div>
+
+                <div class="relative w-full max-w-lg mx-auto aspect-square mb-10 p-4 bg-slate-950/50 rounded-2xl border border-slate-800">
+                    <canvas id="radarChart"></canvas>
+                </div>
+
+                <div class="mb-10">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="h-2 w-2 rounded-full bg-teal-500"></span>
+                        <h4 class="text-xs font-bold text-teal-400 tracking-widest">GENERATED RESONANCE WAVEFORM <span id="duration-display">(10s)</span></h4>
+                    </div>
+                    <div class="final-wave-container h-24 w-full relative overflow-hidden">
+                        <canvas id="finalWaveVisualizer" class="w-full h-full"></canvas>
+                        <div class="absolute top-0 left-0 w-full h-full pointer-events-none" 
+                             style="background-image: linear-gradient(90deg, rgba(20,184,166,0.1) 1px, transparent 1px); background-size: 10% 100%;">
                         </div>
                     </div>
-                    <div class="text-2xl font-bold text-pink-300 mb-2">録音中...</div>
-                    <div class="text-sm text-slate-400">声を出してください</div>
-                    <div id="rec-timer" class="text-6xl font-mono font-bold text-white mt-6">3</div>
-                </div>
-            </div>
-
-            <div id="step3" class="glass-panel rounded-3xl p-8 mb-10 hidden">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-8 w-8 rounded bg-slate-800 text-slate-400 flex items-center justify-center font-mono text-sm border border-slate-700">03</div>
-                    <h2 class="text-xl font-bold text-slate-100">音声解析結果</h2>
+                    <p class="text-[10px] text-slate-500 text-right mt-1 font-mono">
+                        FORMAT: WAV / 44.1kHz / 32bit Float
+                    </p>
                 </div>
 
-                <div class="final-wave-container p-6 mb-6">
-                    <div class="text-xs font-mono text-teal-400 mb-3">VOICE WAVEFORM</div>
-                    <canvas id="canvas-final-wave" class="w-full h-32"></canvas>
-                </div>
-
-                <div class="scope-screen rounded-xl p-6 mb-6">
-                    <div class="text-xs font-mono text-emerald-400 mb-3">FREQUENCY SPECTRUM (FFT)</div>
-                    <canvas id="canvas-fft" class="w-full" style="height:200px;"></canvas>
-                </div>
-
-                <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-6 mb-6">
-                    <div class="text-xs font-mono text-purple-400 mb-2">検出された主要周波数</div>
-                    <div id="out-detected" class="text-4xl font-bold text-purple-300 font-mono">---</div>
-                </div>
-
-                <button id="btn-generate"
-                    class="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-purple-500/50 active:scale-95">
-                    🎵 共鳴音を生成する
-                </button>
-            </div>
-
-            <div id="step4" class="glass-panel rounded-3xl p-8 mb-10 hidden">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-8 w-8 rounded bg-slate-800 text-slate-400 flex items-center justify-center font-mono text-sm border border-slate-700">04</div>
-                    <h2 class="text-xl font-bold text-slate-100">共鳴音 生成完了</h2>
-                </div>
-
-                <div class="bg-gradient-to-br from-teal-500/10 to-purple-500/10 border border-teal-500/30 rounded-xl p-8 mb-6">
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">🎼</div>
-                        <div class="text-2xl font-bold text-teal-300 mb-2">調律音が生成されました</div>
-                        <div class="text-sm text-slate-400">この音を聴くことで、あなたの本質的な振動数に共鳴します</div>
-                    </div>
-                </div>
-
-                <div class="grid gap-4">
-                    <button id="btn-play-tone"
-                        class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 active:scale-95 flex items-center justify-center gap-2">
-                        <span class="text-2xl">▶️</span>
-                        <span>共鳴音を再生</span>
-                    </button>
-                    
-                    <button id="btn-download-tone"
-                        class="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-teal-500/50 active:scale-95 flex items-center justify-center gap-2">
-                        <span class="text-2xl">💾</span>
-                        <span>WAVファイルでダウンロード</span>
+                <div class="flex flex-col items-center gap-4">
+                    <p class="text-xs text-slate-500 max-w-md text-center mb-2 leading-relaxed">
+                        算出された「3つの座標」を統合し、あなた専用の補正WAVファイルを生成しました。<br>
+                        <span class="text-teal-400 font-semibold">あなたの意識と地球と宇宙の調律のための解放の周波数、7.83Hzも合成しました。</span><br>
+                        この音源をアラームや瞑想に使用してください。
+                    </p>
+                    <button onclick="app.downloadWav()" 
+                        class="w-full md:w-auto px-12 py-4 rounded-full bg-teal-500 text-slate-900 font-bold tracking-widest hover:bg-teal-400 hover:shadow-[0_0_40px_rgba(20,184,166,0.4)] transition-all transform hover:-translate-y-1">
+                        ↓ DOWNLOAD RESONANCE (.wav)
                     </button>
                 </div>
 
-                <div id="alarm-section" class="mt-10 pt-8 border-t border-slate-700">
-                    <h3 class="text-lg font-bold text-slate-100 mb-6">🔔 目覚まし音の生成</h3>
-                    
-                    <div id="alarm-confirm" class="text-center p-8 bg-slate-800/30 rounded-xl">
-                        <p class="text-sm text-slate-400 mb-6">
-                            守護周波数とシューマン共鳴(7.83Hz)を組み合わせた、<br>
-                            自然な目覚めを促す2種類のアラーム音を生成できます。
+                <!-- アラーム音生成セクション -->
+                <div id="alarm-section" class="mt-16 pt-12 border-t border-purple-500/30">
+                    <div id="alarm-confirm" class="text-center mb-8">
+                        <div class="inline-block px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-4">
+                            <span class="text-xl">🔔</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-purple-100 mb-4">アラーム音生成</h3>
+                        <p class="text-sm text-slate-300 mb-6 leading-relaxed max-w-md mx-auto">
+                            生成されたオリジナル周波数オーディオファイルを元に<br>
+                            <span class="text-purple-300 font-bold">穏やかな目覚めを促すアラーム音</span>を作れます。
                         </p>
-                        <button id="btn-gen-alarms"
-                            class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-amber-500/50 active:scale-95">
-                            アラーム音を生成する
-                        </button>
+                        <p class="text-lg text-white font-bold mb-6">作りますか？</p>
+                        
+                        <div class="flex justify-center gap-6">
+                            <button onclick="app.generateAlarms()" 
+                                class="px-16 py-4 rounded-full bg-purple-500 text-white font-bold text-lg tracking-widest hover:bg-purple-400 hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all transform hover:-translate-y-1">
+                                YES
+                            </button>
+                            <button onclick="document.getElementById('alarm-section').classList.add('hidden')" 
+                                class="px-16 py-4 rounded-full bg-slate-700 text-slate-300 font-bold text-lg tracking-widest hover:bg-slate-600 transition-all">
+                                NO
+                            </button>
+                        </div>
                     </div>
 
-                    <div id="alarm-generating" class="hidden text-center p-8">
-                        <div class="text-4xl mb-4 animate-pulse">⏳</div>
-                        <div class="text-lg font-bold text-amber-300">生成中...</div>
+                    <!-- アラーム生成中表示 -->
+                    <div id="alarm-generating" class="hidden text-center py-12">
+                        <div class="inline-block mb-6">
+                            <svg class="animate-spin h-16 w-16 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-lg font-mono text-purple-300 mb-4">GENERATING ALARM SOUNDS...</div>
+                        <div class="text-xs text-slate-500">2パターンのアラーム音を生成中</div>
                     </div>
 
+                    <!-- アラーム完成表示 -->
                     <div id="alarm-ready" class="hidden">
-                        <div class="grid gap-4 mt-6">
-                            <div class="bg-slate-800/30 rounded-xl p-6">
-                                <div class="flex items-start gap-4 mb-4">
-                                    <div class="text-3xl">🌙</div>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-slate-100 mb-2">パターン1: 静かな呼吸</h4>
-                                        <p class="text-xs text-slate-400">
-                                            20秒かけて非常に緩やかにフェードイン。揺らぎのある倍音構成で、
-                                            深い睡眠から自然に意識が浮上するように設計されています。
-                                        </p>
-                                    </div>
+                        <div class="text-center mb-8">
+                            <div class="inline-block px-4 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold tracking-widest mb-4">
+                                ALARM READY
+                            </div>
+                            <h3 class="text-xl font-bold text-purple-100 mb-4">2パターンのアラーム音が完成しました</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- パターン1 -->
+                            <div class="glass-panel p-6 rounded-xl border border-purple-500/30">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-2xl">😌</span>
+                                    <h4 class="text-lg font-bold text-purple-200">Pattern 1</h4>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button id="btn-play-alarm1"
-                                        class="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-all text-sm">
-                                        ▶️ 試聴
-                                    </button>
-                                    <button id="btn-dl-alarm1"
-                                        class="bg-amber-600 hover:bg-amber-500 text-white py-2 px-4 rounded-lg transition-all text-sm">
-                                        💾 ダウンロード
-                                    </button>
-                                </div>
+                                <h5 class="text-sm font-bold text-white mb-3">静かな呼吸に同調する目覚め</h5>
+                                <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                    無音に近いレベルから15〜25秒でゆっくりフェードイン。丸みのある倍音で、わずかに揺らぐ音量・音程変化。「起こす」のではなく「気づいたら目が覚めている」状態を目指します。
+                                </p>
+                                <button onclick="app.downloadAlarm(1)" 
+                                    class="w-full py-3 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 font-bold hover:bg-purple-500 hover:text-white transition-all">
+                                    ↓ DOWNLOAD ALARM 1
+                                </button>
                             </div>
 
-                            <div class="bg-slate-800/30 rounded-xl p-6">
-                                <div class="flex items-start gap-4 mb-4">
-                                    <div class="text-3xl">🌅</div>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-slate-100 mb-2">パターン2: 朝の光</h4>
-                                        <p class="text-xs text-slate-400">
-                                            25秒かけて極めて緩やかにフェードイン。中高域の倍音が徐々に増し、
-                                            カーテン越しの朝日のように、明るさが増していく感覚を音で再現しています。
-                                        </p>
-                                    </div>
+                            <!-- パターン2 -->
+                            <div class="glass-panel p-6 rounded-xl border border-purple-500/30">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-2xl">🌅</span>
+                                    <h4 class="text-lg font-bold text-purple-200">Pattern 2</h4>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button id="btn-play-alarm2"
-                                        class="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-all text-sm">
-                                        ▶️ 試聴
-                                    </button>
-                                    <button id="btn-dl-alarm2"
-                                        class="bg-amber-600 hover:bg-amber-500 text-white py-2 px-4 rounded-lg transition-all text-sm">
-                                        💾 ダウンロード
-                                    </button>
-                                </div>
+                                <h5 class="text-sm font-bold text-white mb-3">朝の光がカーテン越しに差し込む瞬間</h5>
+                                <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                    20秒以上かけて緩やかにフェードイン。中高域に優しい倍音が徐々に加わり、明るさは増すが刺激にはならないバランス。「空間が明るくなる感覚」を音で表現します。
+                                </p>
+                                <button onclick="app.downloadAlarm(2)" 
+                                    class="w-full py-3 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-300 font-bold hover:bg-purple-500 hover:text-white transition-all">
+                                    ↓ DOWNLOAD ALARM 2
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -352,609 +389,791 @@
             </div>
 
         </main>
+        
+        <footer class="border-t border-slate-800/80 bg-slate-950/60 py-8 text-center">
+            <div class="text-[10px] font-mono text-slate-600">
+                © 2025 COSMIC NEURAL NETWORK // ASTRO RESONANCE SYSTEM
+            </div>
+        </footer>
+
+        <!-- フローティング録音ウィンドウ -->
+        <div id="recording-float">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center gap-3 mb-4">
+                    <div class="h-4 w-4 rounded-full bg-red-500 rec-pulse"></div>
+                    <span class="text-xl font-bold text-fuchsia-300">RECORDING</span>
+                </div>
+                <div class="text-4xl font-mono font-bold text-white mb-2" id="rec-timer">5.0</div>
+                <div class="text-xs text-slate-400">秒後に自動停止します</div>
+            </div>
+            
+            <div class="scope-screen h-32 rounded-xl mb-4">
+                <canvas id="floatingWaveform" class="w-full h-full"></canvas>
+            </div>
+            
+            <div class="text-center text-xs text-slate-500">
+                声を出し続けてください...
+            </div>
+        </div>
     </div>
 
     <script>
-        // デバイス検出
+        // デバイス検出（モバイル対応用）
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        
-        console.log('📱 Device Info:', { isMobile, isIOS, isSafari });
+        console.log('📱 Device:', { isMobile, isIOS });
+
+        const Logic = {
+            calcElements: function(dateStr) {
+                const d = new Date(dateStr);
+                const types = [
+                    { n:"木性 (WOOD)", desc:"成長・神経系・直感", detail:"「木」は春のエネルギーを象徴し、上へ外へと伸びる性質を持ちます。人体では肝臓・神経系に対応。この周波数は、停滞した思考を打破し、新しい神経回路の形成を促す作用があるとされています。", freq: 396 }, 
+                    { n:"火性 (FIRE)", desc:"情熱・循環器・変容", detail:"「火」は夏のエネルギーで、拡散と上昇を司ります。人体では心臓・循環器に対応。528HzはDNA修復周波数とも呼ばれ、細胞レベルでの活性化と、感情的なブロックの解放（変容）を物理的にサポートします。", freq: 528 }, 
+                    { n:"土性 (EARTH)", desc:"安定・消化器・接続", detail:"「土」は季節の変わり目（土用）を司り、受容と統合の性質を持ちます。人体では胃・脾臓に対応。この周波数は、グラウンディング（地に足をつける）効果が高く、不安定な生体磁場を地球のシューマン共振へと同調させます。", freq: 639 }, 
+                    { n:"金性 (METAL)", desc:"改革・呼吸器・収穫", detail:"「金」は秋の結実を表し、不必要なものを切り捨てる改革の性質を持ちます。人体では肺・呼吸器に対応。741Hzは「表現の周波数」とされ、喉のチャクラに作用し、デトックス効果と自己表現の純度を高める物理特性があります。", freq: 741 }, 
+                    { n:"水性 (WATER)", desc:"知性・腎泌尿・柔軟", detail:"「水」は冬の凝縮エネルギーで、本質的な知恵と柔軟性を表します。人体では腎臓に対応。852Hzは松果体を活性化させると言われ、直感力を高めると同時に、体液（血液・リンパ）のミクロな振動を整える役割を果たします。", freq: 852 }  
+                ];
+                const val = d.getFullYear() + d.getMonth() + d.getDate();
+                const myIdx = val % 5;
+                const guardIdx = (myIdx + 2) % 5; 
+                return { my: types[myIdx], guard: types[guardIdx] };
+            },
+            calcNameValue: function(name) {
+                let score = 0;
+                for(let i=0; i<name.length; i++) score += name.charCodeAt(i);
+                const seed = score;
+                return [
+                    (seed % 100) * 0.8 + 20,
+                    ((seed * 2) % 100) * 0.8 + 20,
+                    ((seed * 3) % 100) * 0.8 + 20,
+                    ((seed * 4) % 100) * 0.8 + 20,
+                    ((seed * 5) % 100) * 0.8 + 20
+                ];
+            }
+        };
 
         window.app = {
-            audioContext: null,
-            analyser: null,
-            mediaStream: null,
-            scriptProcessor: null,
-            recordedSamples: [],
-            voiceBuffer: null,
-            generatedTone: null,
-            alarmPattern1: null,
-            alarmPattern2: null,
-            currentSource: null,
-            isAudioInitialized: false,
-            isRecording: false,
-
-            elements: {
-                guard: { freq: 0 },
-                kata: { freq: 0 },
-                corr: { freq: 0 },
-                detected: { freq: 0 }
-            },
-
-            // 音声システム初期化（ユーザーインタラクション後）
-            initAudio: async function() {
-                if (this.isAudioInitialized) {
-                    console.log('🔄 Audio already initialized, resuming...');
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
-                        console.log('✅ AudioContext resumed');
-                    }
-                    return Promise.resolve();
-                }
-                
-                console.log('🎵 Initializing Audio Context...');
-                
-                try {
-                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                    this.audioContext = new AudioContextClass({ 
-                        latencyHint: 'interactive',
-                        sampleRate: 44100 
-                    });
-                    
-                    // AudioContextを即座に再開
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
-                    }
-                    
-                    this.analyser = this.audioContext.createAnalyser();
-                    this.analyser.fftSize = 4096;
-                    this.isAudioInitialized = true;
-                    
-                    console.log('✅ Audio Context initialized:', {
-                        state: this.audioContext.state,
-                        sampleRate: this.audioContext.sampleRate
-                    });
-                    
-                    return Promise.resolve();
-                } catch (e) {
-                    console.error('❌ Failed to initialize Audio Context:', e);
-                    alert('音声システムの初期化に失敗しました。\nブラウザを更新してください。\n\nエラー: ' + e.message);
-                    return Promise.reject(e);
-                }
-            },
-
+            ctx: null, analyzer: null, micSrc: null, micStream: null,
+            isPlaying: false, animId: null, floatingAnimId: null, elements: null,
+            chart: null, isProcessing: false,
+            recordedData: [50, 50, 50, 50, 50],
+            nameData: [0,0,0,0,0],
+            finalAudioBuffer: null, // 生成された音声データを保持
+            audioSamples: [], // FFT分析用の音声サンプル
+            recordingStartTime: null,
+            alarmPattern1: null, // アラームパターン1
+            alarmPattern2: null, // アラームパターン2
+            
             init: function() {
-                console.log('🟢 App initialized');
+                console.log('🟡 App initialized');
+                const p = new URLSearchParams(window.location.search);
+                const dob = p.get('dob');
+                const name = p.get('name');
+                if(dob) {
+                    const fmt = dob.substring(0,4)+'-'+dob.substring(4,6)+'-'+dob.substring(6,8);
+                    document.getElementById('inp-date').value = fmt;
+                    if(name) document.getElementById('inp-name').value = decodeURIComponent(name);
+                    setTimeout(() => {
+                        document.getElementById('step1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const btn = document.getElementById('btn-analyze');
+                        btn.classList.add('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900');
+                        setTimeout(() => btn.classList.remove('ring-2', 'ring-teal-400', 'ring-offset-2', 'ring-offset-slate-900'), 1500);
+                    }, 600);
+                }
+                console.log('🟡 App ready, button should be clickable');
+            },
+
+            analyzeSequence: function() {
+                try {
+                    console.log('🔵 analyzeSequence started');
+                    const btn = document.getElementById('btn-analyze');
+                    if (!btn) {
+                        console.error('❌ Button not found');
+                        return;
+                    }
+                    const originalText = btn.innerText;
+                    btn.disabled = true;
+                    btn.classList.add('opacity-75', 'cursor-wait');
+                    console.log('🔵 Button disabled, showing step1-5');
+                    
+                    // STEP 1.5を先に表示
+                    setTimeout(() => {
+                        try {
+                            this.showStep('step1-5');
+                            console.log('🔵 step1-5 shown');
+                            
+                            const statusMsgs = [
+                                "ACCESSING UNIVERSAL GRID...",
+                                "CALCULATING WAVEFORMS...",
+                                "SYNCHRONIZING DIMENSIONS...",
+                                "GENERATING RESONANCE PATTERN..."
+                            ];
+                            let i = 0;
+                            const interval = setInterval(() => { 
+                                const statusEl = document.getElementById('gen-status');
+                                if (statusEl) {
+                                    statusEl.innerText = statusMsgs[i % statusMsgs.length];
+                                }
+                                i++; 
+                            }, 700);
+                            
+                            setTimeout(() => {
+                                try {
+                                    clearInterval(interval);
+                                    console.log('🔵 Calling analyze()');
+                                    this.analyze();
+                                    btn.innerText = originalText;
+                                    btn.disabled = false;
+                                    btn.classList.remove('opacity-75', 'cursor-wait');
+                                    console.log('🔵 Showing step2');
+                                    // STEP 2を表示
+                                    this.showStep('step2');
+                                } catch (error) {
+                                    console.error('❌ Error in inner timeout:', error);
+                                }
+                            }, 3000);
+                        } catch (error) {
+                            console.error('❌ Error in outer timeout:', error);
+                        }
+                    }, 100);
+                } catch (error) {
+                    console.error('❌ Error in analyzeSequence:', error);
+                }
+            },
+
+            analyze: function() {
+                console.log('🟢 analyze() called');
+                const date = document.getElementById('inp-date').value;
+                const name = document.getElementById('inp-name').value;
+                console.log('🟢 Date:', date, 'Name:', name);
+                if(!date) {
+                    alert("DATE REQUIRED");
+                    return;
+                }
                 
-                // すべてのボタンにイベントリスナーを設定
-                const buttons = {
-                    'btn-calc': () => this.calculate(),
-                    'btn-startrec': () => this.startRecording(),
-                    'btn-generate': () => this.generateTone(),
-                    'btn-play-tone': () => this.playTone(),
-                    'btn-download-tone': () => this.downloadTone(),
-                    'btn-gen-alarms': () => this.generateAlarms(),
-                    'btn-play-alarm1': () => this.playAlarm(1),
-                    'btn-dl-alarm1': () => this.downloadAlarm(1),
-                    'btn-play-alarm2': () => this.playAlarm(2),
-                    'btn-dl-alarm2': () => this.downloadAlarm(2)
-                };
+                this.elements = Logic.calcElements(date);
+                this.nameData = Logic.calcNameValue(name || "dummy");
+                console.log('🟢 Elements calculated:', this.elements);
+
+                const html = `
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-slate-500">
+                        <div class="text-[10px] font-mono text-slate-500 mb-1">SOUL TYPE</div>
+                        <div class="text-sm font-bold text-slate-200 mb-2">${this.elements.my.n}</div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-2">
+                            あなたの本質的なエネルギータイプです。${this.elements.my.desc}を司ります。
+                        </p>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-yellow-500 bg-yellow-500/5">
+                        <div class="text-[10px] font-mono text-yellow-600 mb-1">GUARDIAN (TARGET)</div>
+                        <div class="text-sm font-bold text-yellow-400 mb-2">${this.elements.guard.n}</div>
+                        <p class="text-[10px] text-yellow-100/70 leading-relaxed border-t border-yellow-500/20 pt-2 text-justify">
+                            ${this.elements.guard.detail}
+                        </p>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-l-2 border-l-teal-500">
+                        <div class="text-[10px] font-mono text-teal-600 mb-1">BASE FREQUENCY</div>
+                        <div class="text-sm font-bold text-teal-400 mb-2 font-mono">${this.elements.guard.freq} Hz</div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed border-t border-slate-700/50 pt-2">
+                            不足エネルギーを補うための物理的な搬送波周波数です。この音がアンカーとなります。
+                        </p>
+                    </div>
+                `;
+                document.getElementById('sanmei-result').innerHTML = html;
                 
-                for (const [id, handler] of Object.entries(buttons)) {
-                    const btn = document.getElementById(id);
-                    if (btn) {
-                        console.log(`✅ Button found: ${id}`);
-                        // タッチイベントとクリックイベントの両方に対応
-                        btn.addEventListener('touchstart', (e) => {
-                            e.preventDefault();
-                            console.log(`👆 Touch: ${id}`);
-                            handler();
-                        }, { passive: false });
-                        
-                        btn.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            console.log(`🖱️ Click: ${id}`);
-                            handler();
+                // step2はanalyzeSequenceで既に表示されている
+                this.initAudio();
+                setTimeout(() => this.drawGridOnly(), 100);
+            },
+
+            initAudio: function() {
+                if(!this.ctx) {
+                    try {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)({
+                            latencyHint: 'interactive',
+                            sampleRate: 44100
                         });
+                        this.analyzer = this.ctx.createAnalyser();
+                        this.analyzer.fftSize = 2048;
+                        console.log('✅ AudioContext initialized:', this.ctx.state);
+                    } catch(e) {
+                        console.error('❌ AudioContext init error:', e);
+                        alert('音声システムの初期化に失敗しました。ブラウザを更新してください。');
+                        return;
                     }
                 }
+                // モバイル対応: suspended状態を確実にresumeする
+                if(this.ctx.state === 'suspended') {
+                    this.ctx.resume().then(() => {
+                        console.log('✅ AudioContext resumed');
+                    }).catch(e => {
+                        console.error('❌ Resume error:', e);
+                    });
+                }
             },
 
-            calculate: function() {
-                console.log('📊 Calculate function called!');
+            playSound: function() {
+                if(this.isPlaying) return;
+                this.initAudio();
                 
-                const name = document.getElementById('inp-name').value;
-                const dateStr = document.getElementById('inp-date').value;
-                
-                console.log('Input:', { name, dateStr });
-                
-                if (!name || !dateStr) {
-                    alert('名前と生年月日を入力してください');
-                    return;
+                // モバイル対応: 再生前に確実にresumeする
+                if(this.ctx.state === 'suspended') {
+                    this.ctx.resume().then(() => {
+                        console.log('✅ AudioContext resumed for playback');
+                        this.executePlaySound();
+                    }).catch(e => {
+                        console.error('❌ Resume failed:', e);
+                        alert('音声の再生に失敗しました。\nページを更新して再度お試しください。');
+                    });
+                } else {
+                    this.executePlaySound();
                 }
-
-                const birthDate = new Date(dateStr);
-                const dayOfYear = Math.floor((birthDate - new Date(birthDate.getFullYear(), 0, 0)) / 86400000);
-                
-                const guardFreq = 200 + (dayOfYear % 100) * 2;
-                
-                let kataSum = 0;
-                const kataMap = {
-                    'あ':1,'い':2,'う':3,'え':4,'お':5,
-                    'か':6,'き':7,'く':8,'け':9,'こ':10,
-                    'さ':11,'し':12,'す':13,'せ':14,'そ':15,
-                    'た':16,'ち':17,'つ':18,'て':19,'と':20,
-                    'な':21,'に':22,'ぬ':23,'ね':24,'の':25,
-                    'は':26,'ひ':27,'ふ':28,'へ':29,'ほ':30,
-                    'ま':31,'み':32,'む':33,'め':34,'も':35,
-                    'や':36,'ゆ':37,'よ':38,
-                    'ら':39,'り':40,'る':41,'れ':42,'ろ':43,
-                    'わ':44,'を':45,'ん':46
-                };
-                for (let c of name) {
-                    kataSum += (kataMap[c] || 0);
-                }
-                const kataFreq = 150 + (kataSum % 80) * 3;
-                const corrFreq = Math.abs(guardFreq - kataFreq);
-
-                this.elements.guard.freq = guardFreq;
-                this.elements.kata.freq = kataFreq;
-                this.elements.corr.freq = corrFreq;
-
-                document.getElementById('out-guard').textContent = guardFreq.toFixed(2) + ' Hz';
-                document.getElementById('out-kata').textContent = kataFreq.toFixed(2) + ' Hz';
-                document.getElementById('out-corr').textContent = corrFreq.toFixed(2) + ' Hz';
-
-                this.showStep('step2');
             },
 
-            startRecording: async function() {
-                console.log('🎤 Starting recording...');
-                
-                if (this.isRecording) {
-                    console.log('⚠️ Already recording');
-                    return;
-                }
-                
-                // 音声システム初期化
-                try {
-                    await this.initAudio();
-                } catch (e) {
-                    return;
-                }
+            executePlaySound: function() {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(this.elements.guard.freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 4);
+                osc.connect(gain);
+                gain.connect(this.analyzer);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 4);
+                this.isPlaying = true;
+                const btn = document.getElementById('btn-play');
+                btn.innerHTML = "GENERATING WAVES...";
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                this.visualize();
+                setTimeout(() => {
+                    this.isPlaying = false;
+                    btn.innerHTML = "▶ REPLAY AUDIO";
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    this.showStep('step3');
+                }, 4000);
+            },
 
-                try {
-                    console.log('🎤 Requesting microphone access...');
-                    
-                    const constraints = {
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            autoGainControl: true,
-                            sampleRate: 44100
-                        }
-                    };
-                    
-                    this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+            startMic: function() {
+                this.initAudio();
+                this.audioSamples = []; // サンプルをリセット
+                this.recordingStartTime = Date.now();
+                
+                navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                }).then(stream => {
                     console.log('✅ Microphone access granted');
-
-                    // フローティングウィンドウ表示
-                    const floatWin = document.getElementById('recording-float');
-                    floatWin.classList.add('active');
-
-                    // ScriptProcessorNodeで録音（iOSでも動作）
-                    const source = this.audioContext.createMediaStreamSource(this.mediaStream);
-                    this.scriptProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+                    this.micSrc = this.ctx.createMediaStreamSource(stream);
+                    this.micSrc.connect(this.analyzer);
+                    this.micStream = stream; // ストリームを保存
                     
-                    this.recordedSamples = [];
-                    this.isRecording = true;
+                    // フローティングウィンドウを表示
+                    const floatDiv = document.getElementById('recording-float');
+                    floatDiv.classList.add('active');
                     
-                    this.scriptProcessor.onaudioprocess = (e) => {
-                        if (!this.isRecording) return;
-                        
-                        const inputData = e.inputBuffer.getChannelData(0);
-                        const samples = new Float32Array(inputData.length);
-                        samples.set(inputData);
-                        this.recordedSamples.push(samples);
-                    };
-
-                    source.connect(this.scriptProcessor);
-                    this.scriptProcessor.connect(this.audioContext.destination);
-
-                    console.log('🔴 Recording started');
-
-                    // カウントダウン
-                    let countdown = 3;
-                    const timerEl = document.getElementById('rec-timer');
-                    const interval = setInterval(() => {
-                        countdown--;
-                        timerEl.textContent = countdown;
-                        if (countdown === 0) {
-                            clearInterval(interval);
-                            this.stopRecording();
+                    // 録音ボタンを無効化
+                    const btnRec = document.getElementById('btn-rec');
+                    btnRec.disabled = true;
+                    btnRec.classList.add('opacity-50');
+                    
+                    // 5秒タイマーを開始
+                    this.startRecordingTimer();
+                    
+                    // 波形の可視化開始
+                    this.visualizeFloating();
+                    
+                    // 音声データ収集開始
+                    this.collectAudioData();
+                    
+                }).catch(e => {
+                    console.error("❌ Microphone access error:", e);
+                    
+                    let errorMsg = 'マイクへのアクセスに失敗しました。\n\n';
+                    
+                    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                        errorMsg += 'マイクの使用が許可されていません。\n';
+                        if (isIOS) {
+                            errorMsg += '\niPhoneの場合:\n設定 > Safari > カメラとマイク\nからマイクを許可してください。';
+                        } else if (isMobile) {
+                            errorMsg += '\nブラウザの設定でマイクの使用を許可してください。';
+                        } else {
+                            errorMsg += '\nブラウザのアドレスバー付近のアイコンから\nマイクの使用を許可してください。';
                         }
-                    }, 1000);
-
-                } catch (err) {
-                    console.error('❌ Microphone access error:', err);
-                    this.isRecording = false;
-                    
-                    let errorMsg = '録音の開始に失敗しました。\n\n';
-                    
-                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                        errorMsg += 'マイクへのアクセスが拒否されました。\n';
-                        errorMsg += isIOS ? 'iPhoneの設定 > Safari > カメラとマイク からマイクを許可してください。' 
-                                         : 'ブラウザの設定でマイクの使用を許可してください。';
-                    } else if (err.name === 'NotFoundError') {
+                    } else if (e.name === 'NotFoundError') {
                         errorMsg += 'マイクが見つかりませんでした。\nマイクが接続されているか確認してください。';
                     } else {
-                        errorMsg += 'エラー: ' + err.message;
+                        errorMsg += 'エラー: ' + e.message;
                     }
                     
                     alert(errorMsg);
-                }
+                });
             },
 
-            stopRecording: function() {
-                console.log('🛑 Stopping recording...');
+            startRecordingTimer: function() {
+                const timerEl = document.getElementById('rec-timer');
+                const duration = 5.0; // 5秒
+                const startTime = Date.now();
                 
-                this.isRecording = false;
-                
-                // フローティングウィンドウを非表示
-                document.getElementById('recording-float').classList.remove('active');
-                
-                // ストリームとプロセッサをクリーンアップ
-                if (this.mediaStream) {
-                    this.mediaStream.getTracks().forEach(track => track.stop());
-                }
-                
-                if (this.scriptProcessor) {
-                    this.scriptProcessor.disconnect();
-                }
-                
-                // 録音データを結合
-                let totalLength = 0;
-                for (let chunk of this.recordedSamples) {
-                    totalLength += chunk.length;
-                }
-                
-                const combinedSamples = new Float32Array(totalLength);
-                let offset = 0;
-                for (let chunk of this.recordedSamples) {
-                    combinedSamples.set(chunk, offset);
-                    offset += chunk.length;
-                }
-                
-                console.log('📊 Recorded samples:', totalLength);
-                
-                // AudioBufferを作成
-                this.voiceBuffer = this.audioContext.createBuffer(1, combinedSamples.length, this.audioContext.sampleRate);
-                this.voiceBuffer.getChannelData(0).set(combinedSamples);
-                
-                console.log('✅ Recording complete');
-                this.analyzeVoice();
-            },
-
-            analyzeVoice: function() {
-                console.log('🔬 Analyzing voice...');
-                
-                if (!this.voiceBuffer) {
-                    console.error('❌ No voice buffer');
-                    return;
-                }
-
-                const rawData = this.voiceBuffer.getChannelData(0);
-                
-                // 波形描画
-                const canvasWave = document.getElementById('canvas-final-wave');
-                const ctxWave = canvasWave.getContext('2d');
-                canvasWave.width = canvasWave.offsetWidth * (window.devicePixelRatio || 1);
-                canvasWave.height = canvasWave.offsetHeight * (window.devicePixelRatio || 1);
-                ctxWave.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-                
-                const displayWidth = canvasWave.offsetWidth;
-                const displayHeight = canvasWave.offsetHeight;
-                
-                ctxWave.clearRect(0, 0, displayWidth, displayHeight);
-                ctxWave.strokeStyle = '#14b8a6';
-                ctxWave.lineWidth = 2;
-                ctxWave.beginPath();
-                
-                const step = Math.ceil(rawData.length / displayWidth);
-                for (let i = 0; i < displayWidth; i++) {
-                    const sample = rawData[i * step] || 0;
-                    const y = (sample * 0.8 + 1) * displayHeight / 2;
-                    if (i === 0) ctxWave.moveTo(i, y);
-                    else ctxWave.lineTo(i, y);
-                }
-                ctxWave.stroke();
-
-                // FFT解析
-                const fftSize = 4096;
-                const fft = new Float32Array(fftSize);
-                for (let i = 0; i < Math.min(fftSize, rawData.length); i++) {
-                    fft[i] = rawData[i];
-                }
-                
-                // ハミング窓
-                for (let i = 0; i < fftSize; i++) {
-                    fft[i] *= 0.54 - 0.46 * Math.cos(2 * Math.PI * i / fftSize);
-                }
-
-                // FFT計算（簡易版）
-                const magnitude = new Float32Array(fftSize / 2);
-                for (let k = 0; k < fftSize / 2; k++) {
-                    let real = 0, imag = 0;
-                    for (let n = 0; n < fftSize; n++) {
-                        const angle = -2 * Math.PI * k * n / fftSize;
-                        real += fft[n] * Math.cos(angle);
-                        imag += fft[n] * Math.sin(angle);
+                const updateTimer = () => {
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const remaining = Math.max(0, duration - elapsed);
+                    timerEl.textContent = remaining.toFixed(1);
+                    
+                    if (remaining > 0) {
+                        requestAnimationFrame(updateTimer);
+                    } else {
+                        // 5秒経過したら自動停止
+                        this.stopMicAuto();
                     }
-                    magnitude[k] = Math.sqrt(real * real + imag * imag);
-                }
-
-                // ピーク検出
-                const sampleRate = this.voiceBuffer.sampleRate;
-                let maxMag = 0, peakIdx = 0;
-                const minFreq = 80, maxFreq = 500;
-                const minIdx = Math.floor(minFreq * fftSize / sampleRate);
-                const maxIdx = Math.floor(maxFreq * fftSize / sampleRate);
-                
-                for (let i = minIdx; i < maxIdx; i++) {
-                    if (magnitude[i] > maxMag) {
-                        maxMag = magnitude[i];
-                        peakIdx = i;
-                    }
-                }
-
-                const detectedFreq = peakIdx * sampleRate / fftSize;
-                this.elements.detected.freq = detectedFreq;
-                
-                document.getElementById('out-detected').textContent = detectedFreq.toFixed(2) + ' Hz';
-
-                // FFT描画
-                const canvasFFT = document.getElementById('canvas-fft');
-                const ctxFFT = canvasFFT.getContext('2d');
-                canvasFFT.width = canvasFFT.offsetWidth * (window.devicePixelRatio || 1);
-                canvasFFT.height = 200 * (window.devicePixelRatio || 1);
-                ctxFFT.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-                
-                const fftDisplayWidth = canvasFFT.offsetWidth;
-                const fftDisplayHeight = 200;
-                
-                ctxFFT.clearRect(0, 0, fftDisplayWidth, fftDisplayHeight);
-                
-                // グリッド
-                ctxFFT.strokeStyle = 'rgba(16, 185, 129, 0.1)';
-                ctxFFT.lineWidth = 1;
-                for (let i = 0; i <= 10; i++) {
-                    const y = i * fftDisplayHeight / 10;
-                    ctxFFT.beginPath();
-                    ctxFFT.moveTo(0, y);
-                    ctxFFT.lineTo(fftDisplayWidth, y);
-                    ctxFFT.stroke();
-                }
-
-                // スペクトル描画
-                ctxFFT.strokeStyle = '#10b981';
-                ctxFFT.fillStyle = 'rgba(16, 185, 129, 0.3)';
-                ctxFFT.lineWidth = 1.5;
-                ctxFFT.beginPath();
-                ctxFFT.moveTo(0, fftDisplayHeight);
-                
-                const maxMagnitude = Math.max(...magnitude);
-                for (let i = 0; i < fftDisplayWidth; i++) {
-                    const idx = Math.floor(i * magnitude.length / fftDisplayWidth);
-                    const normalized = magnitude[idx] / maxMagnitude;
-                    const y = fftDisplayHeight - (normalized * fftDisplayHeight * 0.9);
-                    ctxFFT.lineTo(i, y);
-                }
-                
-                ctxFFT.lineTo(fftDisplayWidth, fftDisplayHeight);
-                ctxFFT.closePath();
-                ctxFFT.fill();
-                ctxFFT.stroke();
-
-                console.log('✅ Voice analysis complete');
-                this.showStep('step3');
+                };
+                updateTimer();
             },
 
-            generateTone: function() {
-                console.log('🎵 Generating resonance tone...');
+            visualizeFloating: function() {
+                const canvas = document.getElementById('floatingWaveform');
+                if (!canvas) return;
+                
+                const c = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+                
+                const bufferLength = this.analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                const draw = () => {
+                    if (!this.micSrc) return; // 録音停止時は終了
+                    
+                    this.floatingAnimId = requestAnimationFrame(draw);
+                    this.analyzer.getByteTimeDomainData(dataArray);
+                    
+                    // 背景をクリア
+                    c.fillStyle = '#000';
+                    c.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // 中央線を描画
+                    c.lineWidth = 1;
+                    c.strokeStyle = 'rgba(30,41,59,0.5)';
+                    c.beginPath();
+                    c.moveTo(0, canvas.height / 2);
+                    c.lineTo(canvas.width, canvas.height / 2);
+                    c.stroke();
+                    
+                    // 波形を描画
+                    c.lineWidth = 2;
+                    c.strokeStyle = '#ec4899'; // フューシャ色
+                    c.shadowBlur = 10;
+                    c.shadowColor = '#ec4899';
+                    c.beginPath();
+                    
+                    const sliceWidth = canvas.width / bufferLength;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v = dataArray[i] / 128.0;
+                        const y = v * canvas.height / 2;
+                        
+                        if (i === 0) {
+                            c.moveTo(x, y);
+                        } else {
+                            c.lineTo(x, y);
+                        }
+                        x += sliceWidth;
+                    }
+                    
+                    c.lineTo(canvas.width, canvas.height / 2);
+                    c.stroke();
+                };
+                draw();
+            },
 
+            stopMicAuto: function() {
+                // マイクを停止
+                if (this.micSrc) {
+                    this.micSrc.disconnect();
+                    this.micSrc = null;
+                }
+                
+                // ストリームを停止
+                if (this.micStream) {
+                    this.micStream.getTracks().forEach(track => track.stop());
+                    this.micStream = null;
+                }
+                
+                // アニメーションを停止
+                if (this.floatingAnimId) {
+                    cancelAnimationFrame(this.floatingAnimId);
+                }
+                
+                // フローティングウィンドウを閉じる
+                const floatDiv = document.getElementById('recording-float');
+                floatDiv.classList.remove('active');
+                
+                // stopMic関数の処理を実行
+                this.stopMic();
+            },
+
+            collectAudioData: function() {
+                const bufferLength = this.analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                const collect = () => {
+                    if (!this.micSrc) return; // 録音停止時は終了
+                    
+                    this.analyzer.getByteFrequencyData(dataArray);
+                    // 周波数データをコピーして保存
+                    this.audioSamples.push(new Uint8Array(dataArray));
+                    
+                    // 録音時間を表示
+                    const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1);
+                    const statusEl = document.getElementById('rec-status');
+                    if (statusEl) {
+                        statusEl.textContent = `Recording: ${elapsed}s | Samples: ${this.audioSamples.length}`;
+                    }
+                    
+                    // 100ms間隔でサンプリング（5秒で約50サンプル）
+                    setTimeout(() => collect(), 100);
+                };
+                collect();
+            },
+
+            stopMic: function() {
+                // 既に停止処理が実行中の場合はスキップ
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+                
+                // 録音ボタンをリセット
+                const btnRec = document.getElementById('btn-rec');
+                btnRec.disabled = false;
+                btnRec.classList.remove('opacity-50');
+                btnRec.innerHTML = "● START RECORDING";
+                
+                const btnStop = document.getElementById('btn-stop');
+                btnStop.disabled = true;
+                btnStop.classList.remove('bg-slate-100', 'text-slate-900');
+                btnStop.classList.add('bg-slate-800', 'text-teal-400', 'animate-pulse');
+                
+                // 録音状況表示を更新
+                const statusEl = document.getElementById('rec-status');
+                if (statusEl) {
+                    statusEl.textContent = `Processing ${this.audioSamples.length} samples...`;
+                    statusEl.className = 'mt-4 text-xs text-yellow-400 font-mono text-center h-4 animate-pulse';
+                }
+                
+                const msgs = ["INTEGRATING BIO-RHYTHM...", "FFT ANALYSIS: PROCESSING...", "ALIGNING DIMENSIONS...", "FINALIZING RESONANCE..."];
+                let i = 0;
+                const timer = setInterval(() => { btnStop.innerText = "■ " + msgs[i++ % msgs.length]; }, 700);
+
+                setTimeout(() => {
+                    clearInterval(timer);
+                    if(this.micSrc) this.micSrc.disconnect();
+                    cancelAnimationFrame(this.animId);
+                    
+                    // ★ 実際のFFT分析を実行
+                    const analysis = this.analyzeRecordedAudio();
+                    this.recordedData = analysis.fiveElements;
+                    const detectedHz = analysis.dominantFreq;
+                    const syncRate = analysis.syncRate;
+
+                    document.getElementById('voice-comment').innerHTML = `
+                        <div class="flex justify-center gap-8 font-mono text-xs mb-2">
+                            <span>VOICE: <b class="text-teal-400">${detectedHz} Hz</b></span>
+                            <span>TARGET: <b class="text-yellow-400">${this.elements.guard.freq} Hz</b></span>
+                        </div>
+                        <div class="text-xl font-bold text-teal-300">SYNC RATE: ${syncRate}%</div>
+                    `;
+                    
+                    // 音声データを生成・保存・描画
+                    this.generateResonanceBuffer();
+                    // 期間表示を更新
+                    const durationEl = document.getElementById('duration-display');
+                    if (durationEl) {
+                        durationEl.textContent = `(${this.audioDuration}s)`;
+                    }
+                    this.showStep('step4');
+                    this.draw3LayerRadar();
+                    this.drawFinalWaveform(); // ★最終波形を描画
+                    
+                    this.isProcessing = false;
+
+                }, 3000);
+            },
+
+            // ★ 新規追加: 実際のFFT分析関数
+            analyzeRecordedAudio: function() {
+                if (this.audioSamples.length === 0) {
+                    console.warn("No audio samples recorded");
+                    return {
+                        fiveElements: [50, 50, 50, 50, 50],
+                        dominantFreq: 200,
+                        syncRate: 50.0
+                    };
+                }
+
+                // サンプリングレート44100Hzの場合、analyzerのfftSizeが2048なら
+                // 各binは約21.5Hz (44100 / 2048)
+                const sampleRate = this.ctx.sampleRate;
+                const fftSize = this.analyzer.fftSize;
+                const binWidth = sampleRate / fftSize;
+
+                // 周波数帯域の定義（五行に対応）
+                // 木(100-300Hz), 火(300-600Hz), 土(600-1000Hz), 金(1000-2000Hz), 水(2000-4000Hz)
+                const bands = [
+                    { name: '木', min: 100, max: 300 },
+                    { name: '火', min: 300, max: 600 },
+                    { name: '土', min: 600, max: 1000 },
+                    { name: '金', min: 1000, max: 2000 },
+                    { name: '水', min: 2000, max: 4000 }
+                ];
+
+                // 全サンプルの平均スペクトルを計算
+                const avgSpectrum = new Float32Array(this.audioSamples[0].length);
+                for (let sample of this.audioSamples) {
+                    for (let i = 0; i < sample.length; i++) {
+                        avgSpectrum[i] += sample[i];
+                    }
+                }
+                for (let i = 0; i < avgSpectrum.length; i++) {
+                    avgSpectrum[i] /= this.audioSamples.length;
+                }
+
+                // 各帯域のエネルギーを計算
+                const bandEnergies = bands.map(band => {
+                    const startBin = Math.floor(band.min / binWidth);
+                    const endBin = Math.floor(band.max / binWidth);
+                    let energy = 0;
+                    for (let i = startBin; i <= endBin && i < avgSpectrum.length; i++) {
+                        energy += avgSpectrum[i];
+                    }
+                    return energy / (endBin - startBin + 1);
+                });
+
+                // 0-100のスケールに正規化
+                const maxEnergy = Math.max(...bandEnergies, 1);
+                const fiveElements = bandEnergies.map(e => Math.min(100, (e / maxEnergy) * 100));
+
+                // 優勢な周波数を検出
+                let maxVal = 0;
+                let maxIdx = 0;
+                for (let i = 0; i < avgSpectrum.length; i++) {
+                    if (avgSpectrum[i] > maxVal) {
+                        maxVal = avgSpectrum[i];
+                        maxIdx = i;
+                    }
+                }
+                const dominantFreq = Math.round(maxIdx * binWidth);
+
+                // 守護周波数との同期率を計算
+                const targetFreq = this.elements.guard.freq;
+                const freqDiff = Math.abs(dominantFreq - targetFreq);
+                const syncRate = Math.max(0, Math.min(100, 100 - (freqDiff / targetFreq * 100))).toFixed(1);
+
+                console.log("✅ FFT Analysis Results:", {
+                    fiveElements,
+                    dominantFreq,
+                    syncRate,
+                    sampleCount: this.audioSamples.length,
+                    bands: bands.map((b, i) => `${b.name}: ${fiveElements[i].toFixed(1)}`)
+                });
+
+                return { fiveElements, dominantFreq, syncRate };
+            },
+
+            // ★追加: 最終的な音声データを生成する関数
+            generateResonanceBuffer: function(customDuration) {
                 const sampleRate = 44100;
-                const duration = 30;
+                const duration = customDuration || parseInt(document.getElementById('inp-duration').value) || 10;
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
+                const guardFreq = this.elements.guard.freq; // 守護周波数
+                const schumannFreq = 7.83; // シューマン共鳴周波数
 
-                const guardFreq = this.elements.guard.freq;
-                const kataFreq = this.elements.kata.freq;
-                const corrFreq = this.elements.corr.freq;
-                const schumannFreq = 7.83;
+                // フェード時間を長さに応じて調整（最大2秒）
+                const fadeTime = Math.min(2, duration * 0.2);
 
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
+                    let envelope = 1;
+                    if (t < fadeTime) envelope = t / fadeTime; // フェードイン
+                    if (t > duration - fadeTime) envelope = (duration - t) / fadeTime; // フェードアウト
                     
-                    const guard = Math.sin(2 * Math.PI * guardFreq * t) * 0.4;
-                    const kata = Math.sin(2 * Math.PI * kataFreq * t) * 0.3;
-                    const corr = Math.sin(2 * Math.PI * corrFreq * t) * 0.2;
-                    const schumann = Math.sin(2 * Math.PI * schumannFreq * t) * 0.1;
+                    // 守護周波数のサイン波
+                    const guardWave = Math.sin(2 * Math.PI * guardFreq * t) * 0.4;
                     
-                    buffer[i] = guard + kata + corr + schumann;
+                    // 7.83Hz シューマン共鳴周波数
+                    const schumannWave = Math.sin(2 * Math.PI * schumannFreq * t) * 0.15;
+                    
+                    // 2つの周波数を合成
+                    buffer[i] = (guardWave + schumannWave) * envelope;
                 }
-
-                this.generatedTone = buffer;
-                console.log('✅ Tone generated');
+                this.finalAudioBuffer = buffer; // メモリに保存
+                this.audioDuration = duration; // 長さを保存
                 
-                this.showStep('step4');
+                console.log(`✨ Generated audio: ${guardFreq}Hz (Guardian) + ${schumannFreq}Hz (Schumann)`);
             },
 
-            playTone: async function() {
-                console.log('▶️ Playing tone...');
+            // ★追加: 最終波形を描画する関数
+            drawFinalWaveform: function() {
+                const canvas = document.getElementById('finalWaveVisualizer');
+                const c = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
                 
-                try {
-                    await this.initAudio();
-                } catch (e) {
-                    return;
-                }
+                const buffer = this.finalAudioBuffer;
+                if(!buffer) return;
 
-                if (!this.generatedTone) {
-                    console.error('❌ No tone generated');
-                    alert('先に共鳴音を生成してください');
-                    return;
-                }
+                c.fillStyle = '#020617'; // 背景
+                c.fillRect(0, 0, canvas.width, canvas.height);
 
-                // 既存の再生を停止
-                if (this.currentSource) {
-                    try {
-                        this.currentSource.stop();
-                    } catch (e) {}
-                }
+                c.lineWidth = 1;
+                c.strokeStyle = '#2dd4bf'; // Teal-400
+                c.beginPath();
 
-                try {
-                    // AudioContextを再開
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
-                        console.log('🔄 AudioContext resumed for playback');
+                const step = Math.ceil(buffer.length / canvas.width);
+                const ampHeight = canvas.height / 2;
+
+                for(let i = 0; i < canvas.width; i++) {
+                    let min = 1.0;
+                    let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = buffer[i * step + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
                     }
-
-                    const audioBuffer = this.audioContext.createBuffer(1, this.generatedTone.length, 44100);
-                    audioBuffer.getChannelData(0).set(this.generatedTone);
-
-                    const source = this.audioContext.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(this.audioContext.destination);
-                    
-                    // モバイルでの再生確認
-                    source.start(0);
-                    this.currentSource = source;
-                    
-                    console.log('✅ Playback started');
-
-                    source.onended = () => {
-                        console.log('⏹️ Playback ended');
-                        this.currentSource = null;
-                    };
-                } catch (e) {
-                    console.error('❌ Playback error:', e);
-                    alert('再生に失敗しました。\n\nエラー: ' + e.message + '\n\nブラウザを更新して再度お試しください。');
+                    // 波形ブロックを描画
+                    c.moveTo(i, (1 + min) * ampHeight);
+                    c.lineTo(i, (1 + max) * ampHeight);
                 }
+                c.stroke();
             },
 
-            playAlarm: async function(pattern) {
-                console.log(`▶️ Playing alarm pattern ${pattern}...`);
+            drawGridOnly: function() {
+                const canvas = document.getElementById('visualizer');
+                const c = canvas.getContext('2d');
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+                c.fillStyle = '#000';
+                c.fillRect(0, 0, canvas.width, canvas.height);
+                c.lineWidth=1; c.strokeStyle='rgba(30,41,59,0.5)'; c.beginPath(); c.moveTo(0,canvas.height/2); c.lineTo(canvas.width,canvas.height/2); c.stroke();
+            },
+
+            visualize: function() {
+                const canvas = document.getElementById('visualizer');
+                const c = canvas.getContext('2d');
+                const bufferLength = this.analyzer.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const freqArray = new Uint8Array(bufferLength); // 周波数データ用
+                let lastSampleTime = Date.now();
+                const statusEl = document.getElementById('rec-status');
                 
-                try {
-                    await this.initAudio();
-                } catch (e) {
-                    return;
-                }
-
-                let buffer;
-                if (pattern === 1) {
-                    if (!this.alarmPattern1) this.alarmPattern1 = this.generateAlarmPattern1();
-                    buffer = this.alarmPattern1;
-                } else {
-                    if (!this.alarmPattern2) this.alarmPattern2 = this.generateAlarmPattern2();
-                    buffer = this.alarmPattern2;
-                }
-
-                if (this.currentSource) {
-                    try {
-                        this.currentSource.stop();
-                    } catch (e) {}
-                }
-
-                try {
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
+                const draw = () => {
+                    this.animId = requestAnimationFrame(draw);
+                    this.analyzer.getByteTimeDomainData(dataArray);
+                    
+                    // 周波数データを100msごとにサンプリング
+                    const now = Date.now();
+                    if (now - lastSampleTime > 100) {
+                        this.analyzer.getByteFrequencyData(freqArray);
+                        this.frequencyData.push(new Uint8Array(freqArray)); // コピーして保存
+                        lastSampleTime = now;
+                        
+                        // 録音状況を表示
+                        if (statusEl) {
+                            const duration = ((now - this.recordingStartTime) / 1000).toFixed(1);
+                            statusEl.textContent = `Recording: ${duration}s | Samples: ${this.frequencyData.length}`;
+                            statusEl.className = 'mt-4 text-xs text-teal-400 font-mono text-center h-4';
+                        }
                     }
-
-                    const audioBuffer = this.audioContext.createBuffer(1, buffer.length, 44100);
-                    audioBuffer.getChannelData(0).set(buffer);
-
-                    const source = this.audioContext.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(this.audioContext.destination);
-                    source.start(0);
                     
-                    this.currentSource = source;
-                    
-                    source.onended = () => {
-                        this.currentSource = null;
-                    };
-                } catch (e) {
-                    console.error('❌ Alarm playback error:', e);
-                    alert('再生に失敗しました: ' + e.message);
-                }
+                    c.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                    c.fillRect(0, 0, canvas.width, canvas.height);
+                    c.lineWidth=1; c.strokeStyle='rgba(30,41,59,0.5)'; c.beginPath(); c.moveTo(0,canvas.height/2); c.lineTo(canvas.width,canvas.height/2); c.stroke();
+
+                    c.lineWidth = 2; c.strokeStyle = '#14b8a6'; c.shadowBlur = 8; c.shadowColor = '#14b8a6';
+                    c.beginPath();
+                    const sliceWidth = canvas.width / bufferLength; let x = 0; let maxAmp = 0;
+                    for(let i = 0; i < bufferLength; i++) {
+                        const v = dataArray[i] / 128.0; const y = v * canvas.height / 2;
+                        const amp = Math.abs(dataArray[i] - 128); if(amp > maxAmp) maxAmp = amp;
+                        if(i===0) c.moveTo(x, y); else c.lineTo(x, y); x += sliceWidth;
+                    }
+                    c.lineTo(canvas.width, canvas.height/2); c.stroke();
+                    if(maxAmp>0) { const db=(20*Math.log10(maxAmp/128)).toFixed(1); document.getElementById('gain-val').innerText=db>-100?db+" dB":"-INF"; }
+                };
+                draw();
             },
 
-            downloadTone: function() {
-                console.log('💾 Downloading tone...');
-                
-                if (!this.generatedTone) {
-                    console.error('❌ No tone to download');
-                    alert('先に共鳴音を生成してください');
-                    return;
-                }
+            draw3LayerRadar: function() {
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                Chart.defaults.color = '#64748b'; Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+                if(this.chart) this.chart.destroy();
+                this.chart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['木 (WOOD)', '火 (FIRE)', '土 (EARTH)', '金 (METAL)', '水 (WATER)'],
+                        datasets: [
+                            { label: '算命学 (IDEAL)', data: [80, 80, 100, 80, 80], borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', borderWidth: 2, pointRadius: 0 },
+                            { label: 'カタカムナ (NAME)', data: this.nameData, borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.0)', borderWidth: 2, borderDash: [5, 5], pointRadius: 3 },
+                            { label: '生体音声 (VOICE)', data: this.recordedData, borderColor: '#d946ef', backgroundColor: 'rgba(217, 70, 239, 0.2)', borderWidth: 2, pointBackgroundColor: '#d946ef' }
+                        ]
+                    },
+                    options: {
+                        scales: { r: { angleLines: { color: 'rgba(255,255,255,0.05)' }, grid: { color: 'rgba(255,255,255,0.05)' }, pointLabels: { font: { size: 11 }, color: '#94a3b8' }, min: 0, max: 100, ticks: { display: false } } },
+                        plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 10 } }, position: 'bottom' } }, maintainAspectRatio: false
+                    }
+                });
+            },
 
-                const wavBytes = this.encodeWAV(this.generatedTone, 44100);
+            downloadWav: function() {
+                if(!this.finalAudioBuffer) this.generateResonanceBuffer();
+                const buffer = this.finalAudioBuffer;
+                const duration = this.audioDuration || 10;
+                const wavBytes = this.encodeWAV(buffer, 44100);
                 const blob = new Blob([wavBytes], { type: 'audio/wav' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `ResonanceTone_${this.elements.guard.freq}Hz.wav`;
+                const a = document.createElement('a'); 
+                a.href = url; 
+                a.download = `AstroResonance_${this.elements.guard.freq}Hz+7.83Hz_${duration}sec.wav`; 
                 a.click();
-                URL.revokeObjectURL(url);
-                
-                console.log('✅ Download started');
             },
 
             encodeWAV: function(samples, sampleRate) {
                 const buffer = new ArrayBuffer(44 + samples.length * 2);
                 const view = new DataView(buffer);
-
-                const writeString = (offset, string) => {
-                    for (let i = 0; i < string.length; i++) {
-                        view.setUint8(offset + i, string.charCodeAt(i));
-                    }
-                };
-
-                writeString(0, 'RIFF');
-                view.setUint32(4, 36 + samples.length * 2, true);
-                writeString(8, 'WAVE');
-                writeString(12, 'fmt ');
-                view.setUint32(16, 16, true);
-                view.setUint16(20, 1, true);
-                view.setUint16(22, 1, true);
-                view.setUint32(24, sampleRate, true);
-                view.setUint32(28, sampleRate * 2, true);
-                view.setUint16(32, 2, true);
-                view.setUint16(34, 16, true);
-                writeString(36, 'data');
-                view.setUint32(40, samples.length * 2, true);
-
+                const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+                writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + samples.length * 2, true);
+                writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+                view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+                writeString(view, 36, 'data'); view.setUint32(40, samples.length * 2, true);
                 let offset = 44;
                 for (let i = 0; i < samples.length; i++) {
                     const s = Math.max(-1, Math.min(1, samples[i]));
-                    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true); 
-                    offset += 2;
+                    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true); offset += 2;
                 }
                 return view;
             },
 
+            // ★ アラーム音生成関数
             generateAlarms: function() {
                 console.log('🔔 Generating alarm sounds...');
                 
+                // 確認部分を非表示
                 document.getElementById('alarm-confirm').classList.add('hidden');
+                
+                // 生成中表示
                 document.getElementById('alarm-generating').classList.remove('hidden');
                 
                 setTimeout(() => {
+                    // パターン1とパターン2を生成
                     this.alarmPattern1 = this.generateAlarmPattern1();
                     this.alarmPattern2 = this.generateAlarmPattern2();
                     
+                    // 完成表示
                     document.getElementById('alarm-generating').classList.add('hidden');
                     document.getElementById('alarm-ready').classList.remove('hidden');
                     
@@ -963,76 +1182,96 @@
             },
 
             generateAlarmPattern1: function() {
+                // パターン1: 静かな呼吸に同調する目覚め
+                // 15〜25秒フェードイン、揺らぎあり
                 const sampleRate = 44100;
-                const duration = 30;
+                const duration = 30; // 30秒
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
                 
                 const guardFreq = this.elements.guard.freq;
                 const schumannFreq = 7.83;
-                const fadeInTime = 20;
+                const fadeInTime = 20; // 20秒でフェードイン
                 
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
                     
+                    // 非常に緩やかなフェードイン（指数関数的）
                     let envelope = 0;
                     if (t < fadeInTime) {
-                        envelope = Math.pow(t / fadeInTime, 2.5) * 0.001;
-                        envelope = Math.min(envelope, 0.3);
+                        envelope = Math.pow(t / fadeInTime, 2.5) * 0.001; // 非常に小さく開始
+                        envelope = Math.min(envelope, 0.3); // 最大音量を抑える
                     } else {
                         envelope = 0.3;
                     }
                     
-                    const vibrato = Math.sin(2 * Math.PI * 0.05 * t) * 0.002;
-                    const tremolo = Math.sin(2 * Math.PI * 0.08 * t) * 0.1 + 1;
+                    // 揺らぎを追加（LFO - Low Frequency Oscillator）
+                    const vibrato = Math.sin(2 * Math.PI * 0.05 * t) * 0.002; // 音程の揺らぎ
+                    const tremolo = Math.sin(2 * Math.PI * 0.08 * t) * 0.1 + 1; // 音量の揺らぎ
                     
+                    // 基音（守護周波数）- 丸みのある倍音構成
                     const fundamental = Math.sin(2 * Math.PI * (guardFreq + vibrato * guardFreq) * t);
-                    const harmonic2 = Math.sin(2 * Math.PI * (guardFreq * 2) * t) * 0.3;
-                    const harmonic3 = Math.sin(2 * Math.PI * (guardFreq * 3) * t) * 0.15;
+                    const harmonic2 = Math.sin(2 * Math.PI * (guardFreq * 2) * t) * 0.3; // 2倍音
+                    const harmonic3 = Math.sin(2 * Math.PI * (guardFreq * 3) * t) * 0.15; // 3倍音（控えめ）
+                    
+                    // シューマン共鳴
                     const schumann = Math.sin(2 * Math.PI * schumannFreq * t) * 0.2;
                     
+                    // 合成
                     buffer[i] = (fundamental * 0.5 + harmonic2 + harmonic3 + schumann) * envelope * tremolo;
                 }
                 
-                console.log('🔔 Pattern 1 generated');
+                console.log('🔔 Pattern 1 generated: Gentle Breathing');
                 return buffer;
             },
 
             generateAlarmPattern2: function() {
+                // パターン2: 朝の光がカーテン越しに差し込む瞬間
+                // 20秒以上フェードイン、中高域倍音追加
                 const sampleRate = 44100;
-                const duration = 30;
+                const duration = 30; // 30秒
                 const samples = sampleRate * duration;
                 const buffer = new Float32Array(samples);
                 
                 const guardFreq = this.elements.guard.freq;
                 const schumannFreq = 7.83;
-                const fadeInTime = 25;
+                const fadeInTime = 25; // 25秒でフェードイン
                 
                 for (let i = 0; i < samples; i++) {
                     const t = i / sampleRate;
                     
+                    // 非常に緩やかなフェードイン
                     let envelope = 0;
                     if (t < fadeInTime) {
-                        envelope = Math.pow(t / fadeInTime, 3) * 0.0005;
+                        envelope = Math.pow(t / fadeInTime, 3) * 0.0005; // さらに小さく開始
                         envelope = Math.min(envelope, 0.35);
                     } else {
                         envelope = 0.35;
                     }
                     
+                    // 明るさの進行（中高域倍音の増加）
                     const brightness = Math.min(t / fadeInTime, 1);
                     
+                    // 基音
                     const fundamental = Math.sin(2 * Math.PI * guardFreq * t);
+                    
+                    // 倍音構成（明るさに応じて増加）
                     const harmonic2 = Math.sin(2 * Math.PI * (guardFreq * 2) * t) * 0.25 * brightness;
                     const harmonic3 = Math.sin(2 * Math.PI * (guardFreq * 3) * t) * 0.15 * brightness;
-                    const harmonic4 = Math.sin(2 * Math.PI * (guardFreq * 4) * t) * 0.1 * brightness;
-                    const harmonic5 = Math.sin(2 * Math.PI * (guardFreq * 5) * t) * 0.05 * brightness;
+                    const harmonic4 = Math.sin(2 * Math.PI * (guardFreq * 4) * t) * 0.1 * brightness; // 中高域
+                    const harmonic5 = Math.sin(2 * Math.PI * (guardFreq * 5) * t) * 0.05 * brightness; // 高域（控えめ）
+                    
+                    // シューマン共鳴
                     const schumann = Math.sin(2 * Math.PI * schumannFreq * t) * 0.15;
+                    
+                    // 空間的な広がり（わずかなコーラス効果）
                     const chorus = Math.sin(2 * Math.PI * (guardFreq * 1.002) * t) * 0.1 * brightness;
                     
+                    // 合成
                     buffer[i] = (fundamental * 0.45 + harmonic2 + harmonic3 + harmonic4 + harmonic5 + schumann + chorus) * envelope;
                 }
                 
-                console.log('🌅 Pattern 2 generated');
+                console.log('🌅 Pattern 2 generated: Morning Light');
                 return buffer;
             },
 
@@ -1056,7 +1295,6 @@
                 a.href = url;
                 a.download = filename;
                 a.click();
-                URL.revokeObjectURL(url);
                 
                 console.log(`✅ Downloaded: ${filename}`);
             },
@@ -1074,8 +1312,7 @@
         };
 
         window.onload = () => {
-            console.log('🟢 Page loaded');
-            console.log('📱 User Agent:', navigator.userAgent);
+            console.log('🟢 Page loaded, initializing app...');
             app.init();
         };
     </script>
